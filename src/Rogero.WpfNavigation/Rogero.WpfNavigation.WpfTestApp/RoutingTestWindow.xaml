@@ -1,0 +1,29 @@
+﻿<Window x:Class="Rogero.WpfNavigation.WpfTestApp.RoutingTestWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Rogero.WpfNavigation.WpfTestApp"
+        xmlns:wpfNavigation="clr-namespace:Rogero.WpfNavigation;assembly=Rogero.WpfNavigation"
+        d:DataContext="{d:DesignInstance local:RoutingTestWindowViewModel, d:IsDesignTimeCreatable=False}"
+        mc:Ignorable="d"
+        Title="RoutingTestWindow" Height="350" Width="525">
+    <Grid wpfNavigation:RoutingComponent.RouterService="{Binding RouterService.Value}">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="69*"/>
+            <ColumnDefinition Width="77*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="208*"/>
+            <RowDefinition Height="208*"/>
+        </Grid.RowDefinitions>
+        <Button Grid.Row="0" Command="{Binding OpenControl1CommandMain}" Grid.Column="0">Control1 on Main</Button>
+        <Button Grid.Row="0" Command="{Binding OpenControl2CommandMain}" Grid.Column="1">Control2 on Main</Button>
+        <Button Grid.Row="1" Command="{Binding OpenControl1CommandSecond}" Grid.Column="0">Control1 on Second</Button>
+        <Button Grid.Row="1" Command="{Binding OpenControl2CommandSecond}" Grid.Column="1">Control2 on Second</Button>
+        <ContentControl wpfNavigation:RoutingComponent.ViewportName="MainViewport" Grid.Row="2" Grid.ColumnSpan="2" />
+        <ContentControl wpfNavigation:RoutingComponent.ViewportName="SecondViewport" Grid.Row="3" Grid.ColumnSpan="2" />
+    </Grid>
+</Window>

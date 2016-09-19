@@ -16,11 +16,11 @@ using System.Windows.Shapes;
 namespace Rogero.WpfNavigation.WpfTestApp
 {
     /// <summary>
-    /// Interaction logic for MainWindow.xaml
+    /// Interaction logic for Control1.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class Control1 : UserControl
     {
-        public MainWindow()
+        public Control1()
         {
             InitializeComponent();
         }

@@ -38,7 +38,7 @@ namespace Rogero.WpfNavigation
                 let service = RoutingComponent.GetRouterService(ancestor)
                 where service != null
                 select service;
-            return routerService.Last();
+            return routerService.LastOrDefault();
         }
 
         private static void RegisterViewportWithService(RouterService service, FrameworkElement control)
