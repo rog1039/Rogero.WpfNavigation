@@ -12,11 +12,12 @@ namespace Rogero.WpfNavigation
         public TabControlViewportAdapter(TabControl tabControl)
         {
             _tabControl = tabControl;
+            _tabControl.ItemsSource = _views;
         }
 
         public void AddControl(UIElement control)
         {
-            _tabControl.ItemsSource = _views;
+            _views.Add(control);
         }
     }
 }

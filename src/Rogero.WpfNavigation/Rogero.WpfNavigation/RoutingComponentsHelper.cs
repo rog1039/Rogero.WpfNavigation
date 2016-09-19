@@ -48,8 +48,12 @@ namespace Rogero.WpfNavigation
             if (viewportAdapter.HasValue)
             {
                 service.RegisterViewport(viewportName, viewportAdapter.Value);
+                Console.WriteLine($"Service found! Registering {viewportName} with {service}");
             }
-            Console.WriteLine($"Service found! Registering {viewportName} with {service}");
+            else
+            {
+                Console.WriteLine($"Viewport adapter not found for control of type {control.GetType()}");
+            }
         }
     }
 }

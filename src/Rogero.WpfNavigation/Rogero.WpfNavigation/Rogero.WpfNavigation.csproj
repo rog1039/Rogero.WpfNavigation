@@ -48,11 +48,11 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CanActivate.cs" />
+    <Compile Include="ICanActivate.cs" />
     <Compile Include="ILogger.cs" />
     <Compile Include="RouteRegistry.cs" />
     <Compile Include="DispatcherExtensions.cs" />
-    <Compile Include="ContentControlViewportAdapter.cs" />
+    <Compile Include="ViewportAdapters\ContentControlViewportAdapter.cs" />
     <Compile Include="ControlViewportAdapterFactory.cs" />
     <Compile Include="EnumerableTreeExtensions.cs" />
     <Compile Include="ICanDeactivate.cs" />
@@ -64,8 +64,8 @@
     <Compile Include="RouterService.cs" />
     <Compile Include="RoutingComponent.cs" />
     <Compile Include="RoutingComponentsHelper.cs" />
-    <Compile Include="TabControlViewportAdapter.cs" />
-    <Compile Include="TreeExtensions.cs" />
+    <Compile Include="ViewportAdapters\TabControlViewportAdapter.cs" />
+    <Compile Include="DependencyObjectTreeExtensions.cs" />
     <Compile Include="ViewVmPair.cs" />
     <Compile Include="VisualTreeAdapter.cs" />
   </ItemGroup>

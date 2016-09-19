@@ -2,7 +2,7 @@
 
 namespace Rogero.WpfNavigation
 {
-    public interface CanActivate
+    public interface ICanActivate
     {
         Task<bool> CanActivate(string uri, object initData);
     }

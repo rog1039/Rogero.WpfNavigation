@@ -4,7 +4,7 @@ using System.Windows;
 
 namespace Rogero.WpfNavigation
 {
-    public static class TreeExtensions
+    public static class DependencyObjectTreeExtensions
     {
         /// <summary>
         /// Returns a collection of descendant elements.
