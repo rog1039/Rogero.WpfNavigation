@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Windows;
 using Rogero.Options;
+using Serilog;
 
 namespace Rogero.WpfNavigation
 {
@@ -23,6 +24,7 @@ namespace Rogero.WpfNavigation
 
         public async Task<RouteResult> RouteAsync(string uri, object initData, string viewportName = "")
         {
+            var routeRequestGuid = new Guid();
             var viewVmPair = GetViewVmPair(uri, initData);
             if (viewVmPair.HasNoValue) return new RouteResult(RouteResultStatusCode.RouteNotFound);
 

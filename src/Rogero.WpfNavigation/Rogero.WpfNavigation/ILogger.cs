@@ -1,10 +1,12 @@
 ﻿namespace Rogero.WpfNavigation
 {
-    public interface ILogger
-    {
-    }
+    //public interface ILogger
+    //{
 
-    public class Logger : ILogger
-    {
-    }
+    //}
+
+    //public class Logger : ILogger
+    //{
+
+    //}
 }
