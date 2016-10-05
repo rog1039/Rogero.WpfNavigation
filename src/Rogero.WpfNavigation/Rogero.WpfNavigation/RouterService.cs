@@ -9,22 +9,29 @@ namespace Rogero.WpfNavigation
 {
     public class RouterService
     {
-        private readonly RouteRegistry _registry;
-        private readonly ILogger _logger;
+        public Guid RouterServiceId { get; } = Guid.NewGuid();
+
+        internal readonly ILogger _logger;
+
+        private readonly RouteRegistry _routeRegistry;
         private readonly IDictionary<string, IControlViewportAdapter> _viewportAdapters = new Dictionary<string, IControlViewportAdapter>();
 
-        public RouterService(RouteRegistry registry, ILogger logger)
+        public RouterService(RouteRegistry routeRegistry, ILogger logger)
         {
-            _registry = registry;
+            _routeRegistry = routeRegistry;
             _logger = logger;
         }
 
         public void RegisterViewport(string viewportName, IControlViewportAdapter viewportAdapter)
             => _viewportAdapters.Add(viewportName, viewportAdapter);
-
+        
         public async Task<RouteResult> RouteAsync(string uri, object initData, string viewportName = "")
         {
-            var routeRequestGuid = new Guid();
+            var routeResult = await RouteWorkflowTask.Go(uri, initData, viewportName, this);
+            return routeResult;
+
+
+
             var viewVmPair = GetViewVmPair(uri, initData);
             if (viewVmPair.HasNoValue) return new RouteResult(RouteResultStatusCode.RouteNotFound);
 
@@ -49,7 +56,7 @@ namespace Rogero.WpfNavigation
             initMethod.Invoke(viewModel, new[] { initData });
         }
 
-        private RouteResult AddViewToUi(string viewportName, UIElement view)
+        public RouteResult AddViewToUi(string viewportName, UIElement view)
         {
             var viewport = _viewportAdapters.TryGetValue(viewportName);
             if (viewport.HasValue)
@@ -73,9 +80,9 @@ namespace Rogero.WpfNavigation
             }
         }
 
-        private Option<ViewVmPair> GetViewVmPair(string uri, object initData)
+        public Option<ViewVmPair> GetViewVmPair(string uri, object initData)
         {
-            var pair = _registry.FindViewVm(uri, initData);
+            var pair = _routeRegistry.FindViewVm(uri, initData);
             return pair;
         }
 

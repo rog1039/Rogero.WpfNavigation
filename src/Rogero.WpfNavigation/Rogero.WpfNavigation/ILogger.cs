@@ -16,12 +16,58 @@ namespace Rogero.WpfNavigation
     //{
 
     //}
+    public class Logging
+    {
+        public static IDisposable Timing(ILogger logger, string description)
+        {
+            return FinishTiming.StartTiming(description, logger);
+        }
+
+        private class FinishTiming : IDisposable
+        {
+            public DateTime Start { get; }
+            public String Description { get; }
+            public ILogger Logger { get; }
+
+            public static FinishTiming StartTiming(string description, ILogger logger)
+            {
+                var timing = new FinishTiming(DateTime.UtcNow, description, logger);
+                return timing;
+            }
+
+            public FinishTiming(DateTime start, string description, ILogger logger)
+            {
+                Start = start;
+                Description = description;
+                Logger = logger;
+                Logger.ForContext("Description", Description).Information("Started " + Description + " at {StartTime}", Start);
+            }
+
+            public void Dispose()
+            {
+                var end = DateTime.UtcNow;
+                var elapsed = end - Start;
+                var logMessage = $"Finished {Description} in {elapsed:c}.";
+                Logger.ForContext("Description", Description)
+                    .ForContext("Elapsed", elapsed)
+                    .Information(logMessage + " at {EndTime}", end);
+            }
+        }
+    }
 
     public class RouteWorkflowTask
     {
+        private readonly RouterService _routerService;
+
         public static async Task<RouteResult> Go(string uri, object initData, string viewportName, RouteRegistry routeRegistry, IDictionary<string, IControlViewportAdapter> viewportAdapters, ILogger logger)
         {
             var workflow = new RouteWorkflowTask(uri, initData, viewportName, routeRegistry, viewportAdapters, logger);
+            return await workflow.Go();
+        }
+
+        public static async Task<RouteResult> Go(string uri, object initData, string viewportName, RouterService routerService)
+        {
+            var workflow = new RouteWorkflowTask(uri, initData, viewportName, routerService);
             return await workflow.Go();
         }
 
@@ -30,8 +76,7 @@ namespace Rogero.WpfNavigation
         public string ViewportName { get; }
         public Guid RoutingWorkflowId { get; } = Guid.NewGuid();
 
-        private ILogger _logger;
-        private RouteRegistry _routeRegistry;
+        private readonly ILogger _logger;
         private readonly IDictionary<string, IControlViewportAdapter> _viewportAdapters;
 
         private RouteWorkflowTask(string uri, object initData, string viewportName, RouteRegistry routeRegistry, IDictionary<string, IControlViewportAdapter> viewportAdapters, ILogger logger)
@@ -39,38 +84,68 @@ namespace Rogero.WpfNavigation
             Uri = uri;
             InitData = initData;
             ViewportName = viewportName;
-            _routeRegistry = routeRegistry;
             _viewportAdapters = viewportAdapters;
             _logger = logger
                 .ForContext("Uri", uri)
                 .ForContext("ViewportName", viewportName)
                 .ForContext("InitData", initData)
+                .ForContext("RouterServiceId", _routerService.RouterServiceId)
+                .ForContext("RoutingWorkflowId", RoutingWorkflowId);
+        }
+
+        private RouteWorkflowTask(string uri, object initData, string viewportName, RouterService routerService)
+        {
+            Uri = uri;
+            InitData = initData;
+            ViewportName = viewportName;
+            _routerService = routerService;
+            _logger = _routerService._logger
+                .ForContext("Uri", uri)
+                .ForContext("ViewportName", viewportName)
+                .ForContext("InitData", initData)
+                .ForContext("RouterServiceId", _routerService.RouterServiceId)
                 .ForContext("RoutingWorkflowId", RoutingWorkflowId);
         }
 
         private async Task<RouteResult> Go()
         {
-            var viewVmPair = GetViewVmPair();
-            if (viewVmPair.HasNoValue) return new RouteResult(RouteResultStatusCode.RouteNotFound);
+            using (var timer = Logging.Timing(_logger, "navigation workflow"))
+            {
+                try
+                {
+                    var initDataIsNull = InitData == null ? "with init data" : "without init data";
+                    LogInfo("Beginning navigation workflow to {Uri} in viewport {ViewportName} "+initDataIsNull, Uri, ViewportName);
 
-            var canDeactivate = await CanDeactivateCurrentRoute();
-            if (!canDeactivate) return new RouteResult(RouteResultStatusCode.CanDeactiveFailed);
+                    var viewVmPair = GetViewVmPair();
+                    if (viewVmPair.HasNoValue) return new RouteResult(RouteResultStatusCode.RouteNotFound);
 
-            var canActivate = await CanActivateNewRoute();
-            if (!canActivate) return new RouteResult(RouteResultStatusCode.CanActivateFailed);
+                    var canDeactivate = await CanDeactivateCurrentRoute();
+                    if (!canDeactivate) return new RouteResult(RouteResultStatusCode.CanDeactiveFailed);
 
-            var viewModel = GetViewModel(viewVmPair.Value);
-            InitializeViewModel(viewModel);
-            var view = GetView(viewVmPair.Value);
-            AssignDataContext(view, viewModel);
+                    var canActivate = await CanActivateNewRoute();
+                    if (!canActivate) return new RouteResult(RouteResultStatusCode.CanActivateFailed);
 
-            return AddViewToUi(view);
+                    var viewModel = GetViewModel(viewVmPair.Value);
+                    InitializeViewModel(viewModel);
+                    var view = GetView(viewVmPair.Value);
+                    AssignDataContext(view, viewModel);
+
+                    var routeResult = _routerService.AddViewToUi(ViewportName, view);
+                    LogInfo("Finished navigation workflow to {Uri} in viewport {ViewportName} " + initDataIsNull, Uri, ViewportName);
+                    return routeResult;
+                }
+                catch (Exception e)
+                {
+                    _logger.Error(e, "Exception during RouteWorkflowTask.Go() method.");
+                    throw;
+                }
+            }
         }
 
         private Option<ViewVmPair> GetViewVmPair()
         {
             LogInfo("Finding ViewVm Pair.");
-            var pair = _routeRegistry.FindViewVm(Uri, InitData);
+            var pair = _routerService.GetViewVmPair(Uri, InitData);
             LogInfo("Found ViewVm Pair, ViewType: {ViewType}", pair.Value.ViewType);
             return pair;
         }
@@ -97,7 +172,7 @@ namespace Rogero.WpfNavigation
 
         private Task<bool> CanActivateNewRoute()
         {
-            LogInfo("CanActivat always returns true currently.");
+            LogInfo("CanActivate always returns true currently.");
             return Task.FromResult(true);
         }
 
@@ -134,14 +209,14 @@ namespace Rogero.WpfNavigation
         {
             if (view is FrameworkElement)
             {
-                LogInfo("Assigning viewmodel to view DataContext");
+                LogInfo("Assigning viewmodel ({ViewModelType}) to view ({ViewType}) DataContext", viewModel.GetType(), view.GetType());
                 var fe = (FrameworkElement)view;
                 fe.DataContext = viewModel;
                 LogInfo("Assigned viewmodel to view DataContext.");
             }
             else
             {
-                LogInfo("Did not assign viewmodel to datacontext since view does not derive from FrameworkElement");
+                LogInfo("Did not assign viewmodel to datacontext since the view {ViewType} does not derive from FrameworkElement", view.GetType());
             }
         }
 
@@ -157,7 +232,7 @@ namespace Rogero.WpfNavigation
             }
             else
             {
-                LogInfo("No viewport found with specified viewport name, {ViewportName}", ViewportName);
+                LogError("No viewport found with specified viewport name, {ViewportName}", ViewportName);
                 //TODO: Report no viewport found somehow!
                 return new RouteResult(RouteResultStatusCode.NoViewportFound);
             }
@@ -167,5 +242,8 @@ namespace Rogero.WpfNavigation
         
         private void LogInfo(string message) => _logger.Information(message);
         private void LogInfo<T>(string message, T data) => _logger.Information(message, data);
+        private void LogInfo<T,T1>(string message, T data, T1 data1) => _logger.Information(message, data, data1);
+
+        private void LogError<T>(string message, T data) => _logger.Error((Exception)null, message, data);
     }
 }

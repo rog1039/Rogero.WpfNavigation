@@ -7,6 +7,8 @@ namespace Rogero.WpfNavigation
 {
     public class RouteRegistry
     {
+        public Guid Id { get; } = Guid.NewGuid();
+
         private readonly IDictionary<string, ViewVmPair> _uriMap = new ConcurrentDictionary<string, ViewVmPair>();
 
         public void Register<T>(string uri, Func<object> viewModelFactory)
