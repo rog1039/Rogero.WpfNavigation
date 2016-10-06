@@ -54,6 +54,7 @@
   <ItemGroup>
     <Compile Include="ICanActivate.cs" />
     <Compile Include="ILogger.cs" />
+    <Compile Include="Logging.cs" />
     <Compile Include="RouteRegistry.cs" />
     <Compile Include="DispatcherExtensions.cs" />
     <Compile Include="ViewportAdapters\ContentControlViewportAdapter.cs" />
