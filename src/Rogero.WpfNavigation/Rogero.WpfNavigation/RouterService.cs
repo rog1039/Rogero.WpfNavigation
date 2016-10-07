@@ -28,5 +28,7 @@ namespace Rogero.WpfNavigation
         internal Option<IControlViewportAdapter> GetControlViewportAdapter(string viewportName) => _viewportAdapters.TryGetValue(viewportName);
 
         internal Option<ViewVmPair> GetViewVmPair(string uri, object initData) => _routeRegistry.FindViewVm(uri, initData);
+
+        public bool DoesViewportExist(string viewportName) => _viewportAdapters.ContainsKey(viewportName);
     }
 }
