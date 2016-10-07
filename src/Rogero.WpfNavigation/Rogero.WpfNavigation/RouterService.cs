@@ -18,6 +18,7 @@ namespace Rogero.WpfNavigation
         public RouterService(RouteRegistry routeRegistry, ILogger logger)
         {
             _routeRegistry = routeRegistry;
+            InternalLogger.LoggerInstance = logger;
             _logger = logger
                 .ForContext("Class", "RouterService")
                 .ForContext("RouterServiceId", RouterServiceId);
