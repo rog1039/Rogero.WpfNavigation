@@ -18,11 +18,16 @@ namespace Rogero.WpfNavigation
         public RouterService(RouteRegistry routeRegistry, ILogger logger)
         {
             _routeRegistry = routeRegistry;
-            _logger = logger;
+            _logger = logger.ForContext("Class", "RouterService");
+            _logger.Information("RouterService created with Id: {RouterServiceId}", RouterServiceId);
         }
 
-        public void RegisterViewport(string viewportName, IControlViewportAdapter viewportAdapter) => _viewportAdapters.Add(viewportName, viewportAdapter);
-        
+        public void RegisterViewport(string viewportName, IControlViewportAdapter viewportAdapter)
+        {
+            _viewportAdapters.Add(viewportName, viewportAdapter);
+            _logger.Information("Viewport registered with name {ViewportName} and Viewport Adapter type {ViewportAdapterType}", viewportName, viewportAdapter.GetType().FullName);
+        }
+
         public async Task<RouteResult> RouteAsync(string uri, object initData, string viewportName = "") => await RouteWorkflowTask.Go(uri, initData, viewportName, this);
 
         internal Option<IControlViewportAdapter> GetControlViewportAdapter(string viewportName) => _viewportAdapters.TryGetValue(viewportName);
