@@ -39,13 +39,11 @@ namespace Rogero.WpfNavigation
 
         private async Task<RouteResult> Go()
         {
-            using (Logging.Timing(_logger, "navigation workflow"))
+            var initDataIsNull = InitData == null ? "with init data" : "without init data";
+            using (Logging.Timing(_logger, $"navigation workflow URI: [{Uri}], in viewport [{ViewportName}] " + initDataIsNull))
             {
                 try
                 {
-                    var initDataIsNull = InitData == null ? "with init data" : "without init data";
-                    LogInfo("Beginning navigation workflow to {Uri} in viewport {ViewportName} "+initDataIsNull, Uri, ViewportName);
-
                     var viewVmPair = GetViewVmPair();
                     if (viewVmPair.HasNoValue) return new RouteResult(RouteResultStatusCode.RouteNotFound);
 
@@ -61,7 +59,6 @@ namespace Rogero.WpfNavigation
                     AssignDataContext(view, viewModel);
 
                     var routeResult = AddViewToUi(view);
-                    LogInfo("Finished navigation workflow to {Uri} in viewport {ViewportName} " + initDataIsNull, Uri, ViewportName);
                     return routeResult;
                 }
                 catch (Exception e)
@@ -91,12 +88,12 @@ namespace Rogero.WpfNavigation
             var canDeactivate = currentViewModel as ICanDeactivate;
             if (canDeactivate != null)
             {
-                LogInfo("Current Viewmodel, {CurrentViewModelType} implements CanDeactivate", canDeactivate.GetType().FullName);
+                LogInfo("Current viewmodel, {CurrentViewModelType} implements CanDeactivate", canDeactivate.GetType().FullName);
                 var canDeactivateResponse = await canDeactivate.CanDeactivate(Uri, InitData);
                 LogInfo("CanDeactivate returned {CanDeactivateResponse}", canDeactivateResponse);
                 return canDeactivateResponse;
             }
-            LogInfo("Current ViewModel, {CurrentViewModelType}, does not implement CanDeactivate", currentViewModel.GetType().FullName);
+            LogInfo("Current viewmodel, {CurrentViewModelType}, does not implement CanDeactivate", currentViewModel.GetType().FullName);
             return true;
         }
 
@@ -108,7 +105,7 @@ namespace Rogero.WpfNavigation
 
         private object GetViewModel(ViewVmPair value)
         {
-            LogInfo("Creating ViewModel.");
+            LogInfo("Creating viewmodel.");
             var viewModel = value.CreateViewModel();
             LogInfo("Created viewmodel of type: {ViewModelType}", viewModel.GetType());
             return viewModel;
@@ -155,9 +152,9 @@ namespace Rogero.WpfNavigation
             var viewport = _routerService.GetControlViewportAdapter(ViewportName);
             if (viewport.HasValue)
             {
-                LogInfo("Found viewport, {ViewportName} and adding view to viewport.", ViewportName);
+                LogInfo("Found target viewport, {ViewportName}, of type {ViewportType}. Adding view to viewport.", ViewportName, viewport.Value.GetType());
                 viewport.Value.AddControl(view);
-                LogInfo("View added to viewport");
+                LogInfo("View {ViewType} added to viewport {ViewportName}, type: {ViewportType}", view.GetType(), ViewportName, viewport.Value.GetType());
                 return RouteResult.Succeeded;
             }
             else
@@ -173,6 +170,7 @@ namespace Rogero.WpfNavigation
         private void LogInfo(string message) => _logger.Information(message);
         private void LogInfo<T>(string message, T data) => _logger.Information(message, data);
         private void LogInfo<T,T1>(string message, T data, T1 data1) => _logger.Information(message, data, data1);
+        private void LogInfo<T, T1,T2>(string message, T data, T1 data1, T2 data2) => _logger.Information(message, data, data1, data2);
 
         private void LogError<T>(string message, T data) => _logger.Error((Exception)null, message, data);
     }

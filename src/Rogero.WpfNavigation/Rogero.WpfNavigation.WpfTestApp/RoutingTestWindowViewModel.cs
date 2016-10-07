@@ -1,5 +1,7 @@
 ﻿using Rogero.ReactiveProperty;
 using Serilog;
+using Serilog.Core.Enrichers;
+using Serilog.Events;
 
 namespace Rogero.WpfNavigation.WpfTestApp
 {
@@ -19,8 +21,14 @@ namespace Rogero.WpfNavigation.WpfTestApp
         public RoutingTestWindowViewModel()
         {
             _registry = new RouteRegistry();
-            RouterService.Value = new RouterService(_registry,
-                                                    new LoggerConfiguration().WriteTo.Console().CreateLogger());
+            var logger = new LoggerConfiguration()
+                .Enrich.With(new PropertyEnricher("AppType", "UnitTest"))
+                .WriteTo.Console().MinimumLevel.Verbose()
+                .WriteTo.Seq("http://ws2012r2seq:5341", apiKey: "RrIxpZQpfUjcqk3NzTBY")
+                .CreateLogger();
+            InternalLogger.LoggerInstance = logger;
+
+            RouterService.Value = new RouterService(_registry, logger);
 
             OpenControl1CommandMain = new DelegateCommand(NavigateToOneMain);
             OpenControl2CommandMain = new DelegateCommand(NavigateToTwoMain);

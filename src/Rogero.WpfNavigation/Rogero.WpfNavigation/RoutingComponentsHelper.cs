@@ -58,17 +58,24 @@ namespace Rogero.WpfNavigation
             var viewportAdapter = ControlViewportAdapterFactory.GetControlViewportAdapter(control);
             if (viewportAdapter.HasValue)
             {
-                service.RegisterViewport(viewportName, viewportAdapter.Value);
                 InternalLogger
                     .LoggerInstance?
                     .ForContext("Class", "RoutingComponentsHelper")
-                    .Information("Service found! Registering {viewportName}, of type {ViewportType} with router service {service}", viewportName, control.GetType(), service.RouterServiceId);
+                    .Information("RouterService found. Registering {ViewportName}, of type {ViewportType}, with router service {RouterServiceId}", viewportName, control.GetType(), service.RouterServiceId);
+
+                service.RegisterViewport(viewportName, viewportAdapter.Value);
+
+                InternalLogger
+                    .LoggerInstance?
+                    .ForContext("Class", "RoutingComponentsHelper")
+                    .Information("RouterService found. Registered {ViewportName}, of type {ViewportType}, with router service {RouterServiceId}", viewportName, control.GetType(), service.RouterServiceId);
             }
             else
             {
                 InternalLogger
                     .LoggerInstance?
                     .ForContext("Class", "RoutingComponentsHelper")
+                    .ForContext("RouterServiceId", service.RouterServiceId)
                     .Warning("Unable to register viewport with router service. Viewport adapter not found for control of type {ViewportControlType}",
                                        control.GetType());
             }
