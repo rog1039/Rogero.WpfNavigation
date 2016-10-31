@@ -119,9 +119,23 @@ namespace Rogero.WpfNavigation
                 LogInfo("Viewmodel has no Init method");
                 return;
             }
-            LogInfo("Initializing viewmodel with InitData");
-            initMethod.Invoke(viewModel, new[] { InitData });
-            LogInfo("Viewmodel initialized with InitData");
+            var parameterCount = initMethod.GetParameters().Length;
+            if (parameterCount == 0)
+            {
+                LogInfo("Initializing viewmodel with no parameters");
+                initMethod.Invoke(viewModel, new object[] {});
+                LogInfo("Viewmodel initialization called");
+            }
+            else if (parameterCount == 1)
+            {
+                LogInfo("Initializing viewmodel with InitData");
+                initMethod.Invoke(viewModel, new[] { InitData });
+                LogInfo("Viewmodel initialized with InitData");
+            }
+            else if (parameterCount > 1)
+            {
+                throw new NotImplementedException();
+            }
         }
 
         private UIElement GetView(ViewVmPair value)
