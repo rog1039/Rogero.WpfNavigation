@@ -26,4 +26,25 @@ namespace Rogero.WpfNavigation
             return _uriMap.TryGetValue(uri);
         }
     }
+
+    public interface IRouteEntryRegistry
+    {
+        void RegisterRouteEntry(IRouteEntry routeEntry);
+        Option<IRouteEntry> GetRouteEntry(string uri);
+    }
+
+    public class RouteEntryRegistry : IRouteEntryRegistry
+    {
+        public Guid Id { get; } = Guid.NewGuid();
+
+        private readonly IDictionary<string, IRouteEntry> _routeEntries = new ConcurrentDictionary<string, IRouteEntry>();
+
+        public RouteEntryRegistry()
+        {
+            
+        }
+
+        public Option<IRouteEntry> GetRouteEntry(string uri) => _routeEntries.TryGetValue(uri);
+        public void RegisterRouteEntry(IRouteEntry routeEntry) => _routeEntries.Add(routeEntry.Uri, routeEntry);
+    }
 }
