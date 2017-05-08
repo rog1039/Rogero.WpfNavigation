@@ -3,7 +3,7 @@ using System.Windows;
 
 namespace Rogero.WpfNavigation
 {
-    public class RoutingComponent
+    public partial class RoutingComponent
     {
         #region RouterService
 
@@ -12,9 +12,15 @@ namespace Rogero.WpfNavigation
         /// </summary>
         public static readonly DependencyProperty RouterServiceProperty =
             DependencyProperty.RegisterAttached("RouterService", typeof(RouterService), typeof(RoutingComponent),
-                                                new FrameworkPropertyMetadata((RouterService)null,
-                                                                              FrameworkPropertyMetadataOptions.AffectsArrange | FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender,
-                                                                              new PropertyChangedCallback(OnRouterServiceChanged)));
+                                                new FrameworkPropertyMetadata((RouterService) null,
+                                                                              FrameworkPropertyMetadataOptions
+                                                                                  .AffectsArrange |
+                                                                              FrameworkPropertyMetadataOptions
+                                                                                  .AffectsMeasure |
+                                                                              FrameworkPropertyMetadataOptions
+                                                                                  .AffectsRender,
+                                                                              new PropertyChangedCallback(
+                                                                                  OnRouterServiceChanged)));
 
         /// <summary>
         /// Gets the RouterService property. This dependency property 
@@ -22,7 +28,7 @@ namespace Rogero.WpfNavigation
         /// </summary>
         public static RouterService GetRouterService(DependencyObject d)
         {
-            return (RouterService)d.GetValue(RouterServiceProperty);
+            return (RouterService) d.GetValue(RouterServiceProperty);
         }
 
         /// <summary>
@@ -39,12 +45,16 @@ namespace Rogero.WpfNavigation
         /// </summary>
         private static void OnRouterServiceChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            var oldRouterService = (RouterService)e.OldValue;
-            var newRouterService = (RouterService)d.GetValue(RouterServiceProperty);
+            var oldRouterService = (RouterService) e.OldValue;
+            var newRouterService = (RouterService) d.GetValue(RouterServiceProperty);
             Console.WriteLine(newRouterService);
         }
 
         #endregion
+    }
+
+    public partial class RoutingComponent
+    { 
 
         #region ViewportName
 
@@ -82,7 +92,7 @@ namespace Rogero.WpfNavigation
         {
             var oldViewportName = (string)e.OldValue;
             var newViewportName = (string)d.GetValue(ViewportNameProperty);
-            Console.WriteLine(newViewportName);
+            Console.WriteLine($"RoutingComponent.ViewportName attached property assigned value: {newViewportName}");
             RoutingComponentsHelper.HookupViewportToRouterService(d);
         }
 

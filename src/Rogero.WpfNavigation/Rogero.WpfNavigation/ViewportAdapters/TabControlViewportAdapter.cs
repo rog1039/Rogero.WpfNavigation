@@ -7,7 +7,7 @@ namespace Rogero.WpfNavigation
     public class TabControlViewportAdapter : IControlViewportAdapter
     {
         private readonly TabControl _tabControl;
-        private ObservableCollection<object> _views = new ObservableCollection<object>();
+        private readonly ObservableCollection<object> _views = new ObservableCollection<object>();
 
         public TabControlViewportAdapter(TabControl tabControl)
         {

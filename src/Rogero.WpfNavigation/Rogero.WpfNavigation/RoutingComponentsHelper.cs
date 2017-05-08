@@ -5,16 +5,69 @@ using System.Windows.Threading;
 
 namespace Rogero.WpfNavigation
 {
-    public class RoutingComponentsHelper
+    public class RoutingComponentsHelperLogHelper
+    {
+        public static void LogViewportAdapterNotFoundMessage(RouterService service, FrameworkElement control)
+        {
+            InternalLogger
+                .LoggerInstance?
+                .ForContext("Class", "RoutingComponentsHelper")
+                .ForContext("RouterServiceId", service.RouterServiceId)
+                .Warning(
+                    "Unable to register viewport with router service. Viewport adapter not found for control of type {ViewportControlType}",
+                    control.GetType());
+        }
+
+        public static void LogViewportRegisteredMessage(RouterService service, FrameworkElement control, string viewportName)
+        {
+            InternalLogger
+                .LoggerInstance?
+                .ForContext("Class", "RoutingComponentsHelper")
+                .Information(
+                    "RouterService found. Registered {ViewportName}, of type {ViewportType}, with router service {RouterServiceId}",
+                    viewportName, control.GetType(), service.RouterServiceId);
+        }
+
+        public static void LogRegisteringViewportMessage(RouterService service, FrameworkElement control, string viewportName)
+        {
+            InternalLogger
+                .LoggerInstance?
+                .ForContext("Class", "RoutingComponentsHelper")
+                .Information(
+                    "RouterService found. Registering {ViewportName}, of type {ViewportType}, with router service {RouterServiceId}",
+                    viewportName, control.GetType(), service.RouterServiceId);
+        }
+
+        public static void LogRouterServiceFoundMessage(RouterService service)
+        {
+            InternalLogger
+                .LoggerInstance?
+                .ForContext("Class", "RoutingComponentsHelper")
+                .Debug(
+                    "WalkAncestorsForRouterService.WalkAncestorsForRouterService found RouterService with router service id: {RouterServiceId}",
+                    service.RouterServiceId);
+        }
+
+        public static void LogRouterServiceNotFoundMessage()
+        {
+            InternalLogger
+                .LoggerInstance?
+                .ForContext("Class", "RoutingComponentsHelper")
+                .Debug(
+                    "WalkAncestorsForRouterService.WalkAncestorsForRouterService did not find the router service. Going to attempt again.");
+        }
+    }
+
+    public static class RoutingComponentsHelper
     {
         private static readonly TimeSpan DelayBetweenAncestorsWalks = TimeSpan.FromMilliseconds(50);
 
-        public static void HookupViewportToRouterService(DependencyObject d)
+        public static void HookupViewportToRouterService(DependencyObject viewportControl)
         {
             var dispatcher = Application.Current?.Dispatcher;
             dispatcher?.DelayInvoke(
                 TimeSpan.Zero,
-                () => FindAndRegisterViewportToRouterService(dispatcher, d));
+                () => FindAndRegisterViewportToRouterService(dispatcher, viewportControl));
         }
 
         private static void FindAndRegisterViewportToRouterService(Dispatcher dispatcher, DependencyObject d)
@@ -22,10 +75,7 @@ namespace Rogero.WpfNavigation
             var service = WalkAncestorsForRouterService(d);
             if (service == null)
             {
-                InternalLogger
-                    .LoggerInstance?
-                    .ForContext("Class", "RoutingComponentsHelper")
-                    .Debug("WalkAncestorsForRouterService.WalkAncestorsForRouterService did not find the router service. Going to attempt again.");
+                RoutingComponentsHelperLogHelper.LogRouterServiceNotFoundMessage();
 
                 dispatcher.DelayInvoke(
                     DelayBetweenAncestorsWalks,
@@ -33,12 +83,7 @@ namespace Rogero.WpfNavigation
             }
             else
             {
-                InternalLogger
-                    .LoggerInstance?
-                    .ForContext("Class", "RoutingComponentsHelper")
-                    .Debug(
-                        "WalkAncestorsForRouterService.WalkAncestorsForRouterService found RouterService with router service id: {RouterServiceId}",
-                        service.RouterServiceId);
+                RoutingComponentsHelperLogHelper.LogRouterServiceFoundMessage(service);
                 RegisterViewportWithService(service, d as FrameworkElement);
             }
         }
@@ -58,26 +103,15 @@ namespace Rogero.WpfNavigation
             var viewportAdapter = ControlViewportAdapterFactory.GetControlViewportAdapter(control);
             if (viewportAdapter.HasValue)
             {
-                InternalLogger
-                    .LoggerInstance?
-                    .ForContext("Class", "RoutingComponentsHelper")
-                    .Information("RouterService found. Registering {ViewportName}, of type {ViewportType}, with router service {RouterServiceId}", viewportName, control.GetType(), service.RouterServiceId);
+                RoutingComponentsHelperLogHelper.LogRegisteringViewportMessage(service, control, viewportName);
 
                 service.RegisterViewport(viewportName, viewportAdapter.Value);
 
-                InternalLogger
-                    .LoggerInstance?
-                    .ForContext("Class", "RoutingComponentsHelper")
-                    .Information("RouterService found. Registered {ViewportName}, of type {ViewportType}, with router service {RouterServiceId}", viewportName, control.GetType(), service.RouterServiceId);
+                RoutingComponentsHelperLogHelper.LogViewportRegisteredMessage(service, control, viewportName);
             }
             else
             {
-                InternalLogger
-                    .LoggerInstance?
-                    .ForContext("Class", "RoutingComponentsHelper")
-                    .ForContext("RouterServiceId", service.RouterServiceId)
-                    .Warning("Unable to register viewport with router service. Viewport adapter not found for control of type {ViewportControlType}",
-                                       control.GetType());
+                RoutingComponentsHelperLogHelper.LogViewportAdapterNotFoundMessage(service, control);
             }
         }
     }

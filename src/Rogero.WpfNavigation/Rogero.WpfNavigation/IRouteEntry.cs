@@ -10,10 +10,10 @@ namespace Rogero.WpfNavigation
 {
     public interface IRouteEntry
     {
-        string Name { get; set; }
-        string Uri { get; set; }
-        Type Controller { get; set; }
-        Type View { get; set; }
+        string Name { get; }
+        string Uri { get; }
+        Type Controller { get; }
+        Type View { get; }
     }
 
     public interface IRouteAuthorizationManager

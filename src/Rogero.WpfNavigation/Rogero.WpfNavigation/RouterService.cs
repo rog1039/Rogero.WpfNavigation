@@ -38,5 +38,51 @@ namespace Rogero.WpfNavigation
         internal Option<ViewVmPair> GetViewVmPair(string uri, object initData) => _routeRegistry.FindViewVm(uri, initData);
 
         public bool DoesViewportExist(string viewportName) => _viewportAdapters.ContainsKey(viewportName);
+
+        public async Task<bool> CheckForViewport(string viewportName, TimeSpan timeout)
+        {
+            async Task<bool> FindViewport()
+            {
+                var start = DateTime.UtcNow;
+                TimeSpan Elapsed() => DateTime.UtcNow - start;
+                bool viewportExists = false;
+
+                bool TimedOut() => Elapsed() > timeout;
+
+                bool ViewportFound()
+                {
+                    viewportExists = DoesViewportExist(viewportName);
+                    return viewportExists;
+                }
+
+                while (!TimedOut() && !ViewportFound())
+                {
+                    await Task.Delay(TimeSpan.FromMilliseconds(100));
+                }
+
+                return viewportExists;
+
+
+                //bool KeepLookingForViewport()
+                //{
+                //    if (Elapsed() > timeout) return false;
+                //    var viewportExists = DoesViewportExist(viewportName);
+                //    var keepLooking = viewportExists ? false : true;
+                //    return keepLooking;
+                //}
+
+                //var stillLooking = true;
+                //while (stillLooking = KeepLookingForViewport())
+                //{
+                //    await Task.Delay(TimeSpan.FromMilliseconds(100));
+                //}
+
+                //var viewportFound = !stillLooking;
+                //return viewportFound;
+            }
+
+            var findViewportTask = Task.Run(FindViewport);
+            return await findViewportTask;
+        }
     }
 }

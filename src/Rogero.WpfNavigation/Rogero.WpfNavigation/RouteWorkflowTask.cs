@@ -280,7 +280,7 @@ namespace Rogero.WpfNavigation
 
         private async Task<bool> CheckRouteAuthorizationAsync(IRouteEntry routeEntryValue)
         {
-            return false;
+            return await Task.FromResult(false);
         }
 
         private Option<IRouteEntry> GetRouteEntry()

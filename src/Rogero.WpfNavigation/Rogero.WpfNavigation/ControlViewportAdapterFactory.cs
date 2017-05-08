@@ -13,6 +13,8 @@ namespace Rogero.WpfNavigation
             { typeof(ContentControl), typeof(ContentControlViewportAdapter) }
         };
 
+        public static void AddViewportControlAdapter(Type frameworkElement, Type viewportAdapter) => _frameworkElementToViewportAdapterMap.Add(frameworkElement, viewportAdapter);
+
         public static Option<IControlViewportAdapter> GetControlViewportAdapter(FrameworkElement control)
         {
             var adapterType = _frameworkElementToViewportAdapterMap.TryGetValue(control.GetType());
