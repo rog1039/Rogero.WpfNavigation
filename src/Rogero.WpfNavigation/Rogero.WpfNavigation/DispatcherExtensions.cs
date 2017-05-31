@@ -7,8 +7,10 @@ namespace Rogero.WpfNavigation
     {
         public static void DelayInvoke(this Dispatcher dispatcher, TimeSpan delay, Action action)
         {
-            var dt = new DispatcherTimer(DispatcherPriority.Normal, dispatcher);
-            dt.Interval = delay;
+            var dt = new DispatcherTimer(DispatcherPriority.Normal, dispatcher)
+            {
+                Interval = delay
+            };
             dt.Tick += (sender, args) =>
             {
                 dt.Stop();

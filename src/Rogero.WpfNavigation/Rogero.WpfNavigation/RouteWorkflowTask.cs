@@ -89,8 +89,7 @@ namespace Rogero.WpfNavigation
                 LogInfo("No current viewmodel to call CanDeactivate upon");
                 return true;
             }
-            var canDeactivate = currentViewModel as ICanDeactivate;
-            if (canDeactivate != null)
+            if (currentViewModel is ICanDeactivate canDeactivate)
             {
                 LogInfo("Current viewmodel, {CurrentViewModelType} implements CanDeactivate", canDeactivate.GetType().FullName);
                 var canDeactivateResponse = await canDeactivate.CanDeactivate(Uri, InitData);
@@ -302,8 +301,7 @@ namespace Rogero.WpfNavigation
                 LogInfo("No current viewmodel to call CanDeactivate upon");
                 return true;
             }
-            var canDeactivate = currentViewModel as ICanDeactivate;
-            if (canDeactivate != null)
+            if (currentViewModel is ICanDeactivate canDeactivate)
             {
                 LogInfo("Current viewmodel, {CurrentViewModelType} implements CanDeactivate", canDeactivate.GetType().FullName);
                 var canDeactivateResponse = await canDeactivate.CanDeactivate(Uri, InitData);
