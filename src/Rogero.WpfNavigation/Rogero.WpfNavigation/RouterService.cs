@@ -10,7 +10,7 @@ namespace Rogero.WpfNavigation
     {
         public Guid RouterServiceId { get; } = Guid.NewGuid();
 
-        internal readonly ILogger _logger;
+        internal readonly ILogger Logger;
 
         private readonly RouteRegistry _routeRegistry;
         private readonly IDictionary<string, IControlViewportAdapter> _viewportAdapters = new Dictionary<string, IControlViewportAdapter>();
@@ -19,16 +19,16 @@ namespace Rogero.WpfNavigation
         {
             _routeRegistry = routeRegistry;
             InternalLogger.LoggerInstance = logger;
-            _logger = logger
+            Logger = logger
                 .ForContext("Class", "RouterService")
                 .ForContext("RouterServiceId", RouterServiceId);
-            _logger.Information("RouterService created with Id: {RouterServiceId}", RouterServiceId);
+            Logger.Information("RouterService created with Id: {RouterServiceId}", RouterServiceId);
         }
 
         public void RegisterViewport(string viewportName, IControlViewportAdapter viewportAdapter)
         {
             _viewportAdapters.Add(viewportName, viewportAdapter);
-            _logger.Information("Viewport registered with name {ViewportName} and Viewport Adapter type {ViewportAdapterType}", viewportName, viewportAdapter.GetType().FullName);
+            Logger.Information("Viewport registered with name {ViewportName} and Viewport Adapter type {ViewportAdapterType}", viewportName, viewportAdapter.GetType().FullName);
         }
 
         public async Task<RouteResult> RouteAsync(string uri, object initData, string viewportName = "") => await RouteWorkflowTask.Go(uri, initData, viewportName, this);

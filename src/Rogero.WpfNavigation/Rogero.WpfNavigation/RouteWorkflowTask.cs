@@ -29,7 +29,7 @@ namespace Rogero.WpfNavigation
             InitData = initData;
             ViewportName = viewportName;
             _routerService = routerService;
-            _logger = _routerService._logger
+            _logger = _routerService.Logger
                 .ForContext("Class", "RouteWorkflowTask")
                 .ForContext("Uri", uri)
                 .ForContext("ViewportName", viewportName)
@@ -233,7 +233,7 @@ namespace Rogero.WpfNavigation
             _routeAuthorizationManager = routeAuthorizationManager;
             _routerService = routerService;
 
-            _logger = _routerService._logger
+            _logger = _routerService.Logger
                 .ForContext("Class", "RouteWorkflowTask2")
                 .ForContext("Uri", uri)
                 .ForContext("ViewportName", viewportName)
