@@ -116,7 +116,7 @@ namespace Rogero.WpfNavigation
 
         private async Task InitializeViewModel(object viewModel)
         {
-            var initMethod = viewModel.GetType().GetMethod("Init");
+            var initMethod = viewModel.GetType().GetMethod("Initialize");
             if (initMethod == null)
             {
                 LogInfo("Viewmodel has no Init method");
@@ -131,6 +131,7 @@ namespace Rogero.WpfNavigation
                 if (result.GetType().IsSubclassOf(typeof(Task)))
                 {
                     var task = (Task) result;
+                    LogInfo("Viewmodel initialization is async, starting await of the Init method");
                     await task;
                 }
                 LogInfo("Viewmodel initialization returned");
