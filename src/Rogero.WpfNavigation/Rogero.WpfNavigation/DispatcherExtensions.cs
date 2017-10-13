@@ -27,7 +27,7 @@ namespace Rogero.WpfNavigation
         /// <param name="delay"></param>
         /// <param name="maxTime"></param>
         /// <param name="maxIterations"></param>
-        public static void DelayInvokeUntil(this Dispatcher dispatcher, Func<bool> func, TimeSpan delay, TimeSpan maxTime, int maxIterations)
+        public static void InvokeUntil(this Dispatcher dispatcher, Func<DelayInvokeResult> func, TimeSpan delay, TimeSpan maxTime, int maxIterations)
         {
             var count = 0;
             var timeStarted = DateTime.UtcNow;
@@ -39,7 +39,7 @@ namespace Rogero.WpfNavigation
             dispatcherTimer.Tick += (sender, args) =>
             {
                 dispatcherTimer.Stop();
-                var shouldQuit = func() || ShouldStop();
+                var shouldQuit = func() == DelayInvokeResult.StopInvoking || ShouldStop();
 
                 if (!shouldQuit)
                 {
@@ -50,5 +50,11 @@ namespace Rogero.WpfNavigation
 
             dispatcherTimer.Start();
         }
+    }
+
+    public enum DelayInvokeResult
+    {
+        KeepInvoking,
+        StopInvoking
     }
 }
