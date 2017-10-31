@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Linq;
 using System.Reflection;
+using System.Security.Principal;
 using System.Threading.Tasks;
 using System.Windows;
 using Rogero.Options;
@@ -205,11 +207,31 @@ namespace Rogero.WpfNavigation
         private void LogError<T>(string message, T data) => _logger.Error((Exception)null, message, data);
     }
 
+    public class RouteRequest
+    {
+        public string Uri { get; set; }
+        public object InitData { get; set; }
+        public string TargetViewportName { get; set; }
+        public IPrincipal Principal { get; set; }
+
+        public RouteRequest(string uri, object initData, string targetViewportName, IPrincipal principal)
+        {
+            Uri = uri;
+            InitData = initData;
+            TargetViewportName = targetViewportName;
+            Principal = principal;
+        }
+
+        public RouteRequest(){}
+    }
+    
+
     public class RouteWorkflowTask2
     {
-        public static async Task<RouteResult> Go(string uri, object initData, string viewportName, IRouteEntryRegistry routeEntryRegistry, IRouteAuthorizationManager routeAuthorizationManager, RouterService routerService)
+
+        public static async Task<RouteResult> Go(RouteRequest routeRequest, IRouteEntryRegistry routeEntryRegistry, IRouteAuthorizationManager routeAuthorizationManager, RouterService routerService, ILogger logger)
         {
-            var workflow = new RouteWorkflowTask2(uri, initData, viewportName, routeEntryRegistry, routeAuthorizationManager, routerService);
+            var workflow = new RouteWorkflowTask2(routeRequest, routeEntryRegistry, routeAuthorizationManager, routerService, logger);
             return await workflow.GoAsync();
         }
 
@@ -221,9 +243,16 @@ namespace Rogero.WpfNavigation
         private readonly ILogger _logger;
         private readonly IRouteEntryRegistry _routeEntryRegistry;
         private readonly IRouteAuthorizationManager _routeAuthorizationManager;
-        private readonly RouterService _routerService;
+        private readonly IRouterService _routerService;
 
-        private RouteWorkflowTask2(string uri, object initData, string viewportName, IRouteEntryRegistry routeEntryRegistry, IRouteAuthorizationManager routeAuthorizationManager, RouterService routerService)
+        private readonly RouteRequest _routeRequest;
+        private Option<IRouteEntry> _routeEntry;
+
+        internal RouteWorkflowTask2(string uri, object initData, string viewportName,
+            IRouteEntryRegistry routeEntryRegistry, 
+            IRouteAuthorizationManager routeAuthorizationManager, 
+            IRouterService routerService,
+            ILogger logger)
         {
             Uri = uri;
             InitData = initData;
@@ -232,8 +261,7 @@ namespace Rogero.WpfNavigation
             _routeEntryRegistry = routeEntryRegistry;
             _routeAuthorizationManager = routeAuthorizationManager;
             _routerService = routerService;
-
-            _logger = _routerService.Logger
+            _logger = logger
                 .ForContext("Class", "RouteWorkflowTask2")
                 .ForContext("Uri", uri)
                 .ForContext("ViewportName", viewportName)
@@ -241,30 +269,34 @@ namespace Rogero.WpfNavigation
                 .ForContext("RouterServiceId", _routerService.RouterServiceId)
                 .ForContext("RoutingWorkflowId", RoutingWorkflowId);
         }
-        
 
-        private async Task<RouteResult> GoAsync()
+        internal RouteWorkflowTask2(RouteRequest routeRequest, IRouteEntryRegistry routeEntryRegistry, IRouteAuthorizationManager routeAuthorizationManager, IRouterService routingService, ILogger logger) : this(routeRequest.Uri, routeRequest.InitData, routeRequest.TargetViewportName, routeEntryRegistry, routeAuthorizationManager,  routingService, logger)
+        {
+            _routeRequest = routeRequest;
+        }
+
+        internal async Task<RouteResult> GoAsync()
         {
             var initDataIsNull = InitData == null ? "with init data" : "without init data";
             using (Logging.Timing(_logger, $"navigation workflow URI: [{Uri}], in viewport [{ViewportName}] " + initDataIsNull))
             {
                 try
                 {
-                    var routeEntry = GetRouteEntry();
-                    if (routeEntry.HasNoValue) return new RouteResult(RouteResultStatusCode.RouteNotFound);
+                    _routeEntry = GetRouteEntry();
+                    if (_routeEntry.HasNoValue) return new RouteResult(RouteResultStatusCode.RouteNotFound);
 
-                    var authorized = await CheckRouteAuthorizationAsync(routeEntry.Value);
+                    var authorized = await CheckRouteAuthorizationAsync(_routeEntry.Value);
                     if (!authorized) return new RouteResult(RouteResultStatusCode.Unauthorized);
 
-                    var canDeactivate = await CanDeactivateCurrentRouteAsync();
+                    var canDeactivate = await CanDeactivateCurrentRouteAsync(_routeRequest.TargetViewportName);
                     if (!canDeactivate) return new RouteResult(RouteResultStatusCode.CanDeactiveFailed);
 
                     var canActivate = await CanActivateNewRouteAsync();
                     if (!canActivate) return new RouteResult(RouteResultStatusCode.CanActivateFailed);
 
-                    var viewModel = GetViewModel(routeEntry.Value);
+                    var viewModel = GetViewModel(_routeEntry.Value);
                     await InitializeViewModelAsync(viewModel);
-                    var view = GetView(routeEntry.Value);
+                    var view = GetView(_routeEntry.Value);
                     AssignDataContext(view, viewModel);
 
                     var routeResult = AddViewToUi(view);
@@ -280,7 +312,8 @@ namespace Rogero.WpfNavigation
 
         private async Task<bool> CheckRouteAuthorizationAsync(IRouteEntry routeEntryValue)
         {
-            return await Task.FromResult(false);
+            var result = await _routeAuthorizationManager.CheckAuthorization(_routeRequest, null);
+            return result == RouteAuthorizationResult.Granted;
         }
 
         private Option<IRouteEntry> GetRouteEntry()
@@ -294,15 +327,15 @@ namespace Rogero.WpfNavigation
             return routeEntry;
         }
 
-        private async Task<bool> CanDeactivateCurrentRouteAsync()
+        private async Task<bool> CanDeactivateCurrentRouteAsync(string viewportName)
         {
-            var currentViewModel = CurrentViewModel;
-            if (currentViewModel == null)
+            var currentViewModel = _routerService.GetActiveDataContext(viewportName);
+            if (currentViewModel.HasNoValue)
             {
                 LogInfo("No current viewmodel to call CanDeactivate upon");
                 return true;
             }
-            if (currentViewModel is ICanDeactivate canDeactivate)
+            if (currentViewModel.Value is ICanDeactivate canDeactivate)
             {
                 LogInfo("Current viewmodel, {CurrentViewModelType} implements CanDeactivate", canDeactivate.GetType().FullName);
                 var canDeactivateResponse = await canDeactivate.CanDeactivate(Uri, InitData);
@@ -316,20 +349,20 @@ namespace Rogero.WpfNavigation
         private async Task<bool> CanActivateNewRouteAsync()
         {
             LogInfo("CanActivate always returns true currently.");
-            return await Task.FromResult(true);
+            return true;
         }
 
         private object GetViewModel(IRouteEntry routeEntry)
         {
             LogInfo("Creating viewmodel of type {ViewModelType}", routeEntry.Controller);
-            var viewModel = Activator.CreateInstance(routeEntry.Controller);
+            var viewModel = routeEntry.CreateViewModel();
             LogInfo("Created viewmodel of type: {ViewModelType}", routeEntry.Controller);
             return viewModel;
         }
 
         private async Task InitializeViewModelAsync(object viewModel)
         {
-            var initMethod = viewModel.GetType().GetMethod("Init");
+            var initMethod = GetViewModelInitMethod(viewModel);
             if (initMethod == null)
             {
                 LogInfo("Viewmodel has no Init method");
@@ -339,53 +372,79 @@ namespace Rogero.WpfNavigation
             if (parameterCount == 0)
             {
                 LogInfo("Initializing viewmodel with no parameters");
+                if(InitData != null) LogWarning("Viewmodel Init method has no parameters, but InitData was passed to this route request.");
                 var result = initMethod.Invoke(viewModel, new object[] { });
                 LogInfo("Viewmodel initialization called");
-                if (result.GetType().IsSubclassOf(typeof(Task)))
-                {
-                    var task = (Task)result;
-                    await task;
-                }
+                await AwaitResultIfNecessary(result);
                 LogInfo("Viewmodel initialization returned");
             }
             else if (parameterCount == 1)
             {
-                LogInfo("Initializing viewmodel with InitData");
+                LogInfo("Initializing viewmodel with InitData of type {InitDataType}", InitData?.GetType());
+                if (InitData == null)
+                    LogWarning("Passing null to a new viewmodel {ViewModelType} that has a paramter in the Init method", viewModel.GetType());
+
                 var result = initMethod.Invoke(viewModel, new[] { InitData });
                 LogInfo("Viewmodel initialized with InitData");
-                if (result.GetType().IsSubclassOf(typeof(Task)))
-                {
-                    var task = (Task)result;
-                    await task;
-                }
+                await AwaitResultIfNecessary(result);
                 LogInfo("Viewmodel initialization with InitData returned");
             }
             else if (parameterCount > 1)
             {
-                throw new NotImplementedException();
+                var exception = new NotImplementedException();
+                LogError("ViewModel init method has more than 1 parameter and this is not supported at this time.", exception);
+                throw exception;
             }
+        }
+
+        private static async Task AwaitResultIfNecessary(object result)
+        {
+            if (result is Task task)
+            {
+                await task;
+            }
+        }
+
+        private static MethodInfo GetViewModelInitMethod(object viewModel)
+        {
+            var initMethods = viewModel.GetType()
+                .GetMethods()
+                .Where(z => z.Name.StartsWith("Init"))
+                .ToList();
+
+            return initMethods.FirstOrDefault();
         }
 
         private UIElement GetView(IRouteEntry routeEntry)
         {
             LogInfo("Creating the view.");
-            var uiElement = (UIElement) Activator.CreateInstance(routeEntry.View);
+            var uiElement = routeEntry.CreateView();
             LogInfo("View, {ViewType}, created.", uiElement.GetType());
             return uiElement;
         }
 
         private void AssignDataContext(object view, object viewModel)
         {
-            if (view is FrameworkElement)
+            if (view is FrameworkElement frameworkElement)
             {
-                LogInfo("Assigning viewmodel ({ViewModelType}) to view ({ViewType}) DataContext", viewModel.GetType(), view.GetType());
-                var fe = (FrameworkElement)view;
-                fe.DataContext = viewModel;
+                LogInfo("Assigning viewmodel ({ViewModelType}) to view ({ViewType}) DataContext", viewModel.GetType(), frameworkElement.GetType());
+                frameworkElement.DataContext = viewModel;
                 LogInfo("Assigned viewmodel to view DataContext.");
             }
             else
             {
-                LogInfo("Did not assign viewmodel to datacontext since the view {ViewType} does not derive from FrameworkElement", view.GetType());
+                if (viewModel != null)
+                {
+                    LogWarning(
+                        "Viewmodel of type {ViewModelType} was created but was not assigned to the View of type {ViewType} since the view does not have a DataContext property",
+                        viewModel.GetType(), view.GetType());
+                }
+                else
+                {
+                    LogInfo(
+                        "The viewmodel was null which is good because the view {ViewType} does not derive from FrameworkElement and does not have a DataContext property to assign to.",
+                        view.GetType());
+                }
             }
         }
 
@@ -402,17 +461,18 @@ namespace Rogero.WpfNavigation
             else
             {
                 LogError("No viewport found with specified viewport name, {ViewportName}", ViewportName);
-                //TODO: Report no viewport found somehow!
                 return new RouteResult(RouteResultStatusCode.NoViewportFound);
             }
         }
-
-        private object CurrentViewModel => new NotImplementedException();
 
         private void LogInfo(string message) => _logger.Information(message);
         private void LogInfo<T>(string message, T data) => _logger.Information(message, data);
         private void LogInfo<T, T1>(string message, T data, T1 data1) => _logger.Information(message, data, data1);
         private void LogInfo<T, T1, T2>(string message, T data, T1 data1, T2 data2) => _logger.Information(message, data, data1, data2);
+
+        private void LogWarning(string message) => _logger.Warning(message);
+        private void LogWarning<T>(string message, T data) => _logger.Warning(message, data);
+        private void LogWarning<T, T1>(string message, T data, T1 data1) => _logger.Warning(message, data, data1);
 
         private void LogError<T>(string message, T data) => _logger.Error((Exception)null, message, data);
     }

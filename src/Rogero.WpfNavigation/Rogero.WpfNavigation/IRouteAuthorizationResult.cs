@@ -1,22 +1,60 @@
-﻿namespace Rogero.WpfNavigation
+﻿using System;
+using System.Threading.Tasks;
+
+namespace Rogero.WpfNavigation
 {
     public interface IRouteAuthorizationResult
     {
-        bool IsAuthorized { get; }
-        bool NotAuthorized { get; }
+        RouteAuthorizationStatus RouteAuthorizationStatus { get; set; }
     }
 
-    public class RouteAuthorizationResult : IRouteAuthorizationResult
+    public enum RouteAuthorizationStatus
     {
-        public bool IsAuthorized { get; }
-        public bool NotAuthorized => !IsAuthorized;
+        NotDetermined,
+        Authorized,
+        Denied
+    }
 
-        public RouteAuthorizationResult(bool isAuthorized)
+    public class RouteAuthorizationResult : IRouteAuthorizationResult, IEquatable<RouteAuthorizationResult>
+    {
+        public bool Equals(RouteAuthorizationResult other)
         {
-            IsAuthorized = isAuthorized;
+            if (ReferenceEquals(null, other)) return false;
+            if (ReferenceEquals(this, other)) return true;
+            return RouteAuthorizationStatus == other.RouteAuthorizationStatus;
         }
 
-        public static RouteAuthorizationResult Denied { get; } = new RouteAuthorizationResult(false);
-        public static RouteAuthorizationResult Granted { get; } = new RouteAuthorizationResult(true);
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != this.GetType()) return false;
+            return Equals((RouteAuthorizationResult) obj);
+        }
+
+        public override int GetHashCode()
+        {
+            return (int) RouteAuthorizationStatus;
+        }
+
+        public static bool operator ==(RouteAuthorizationResult left, RouteAuthorizationResult right)
+        {
+            return Equals(left, right);
+        }
+
+        public static bool operator !=(RouteAuthorizationResult left, RouteAuthorizationResult right)
+        {
+            return !Equals(left, right);
+        }
+
+        public RouteAuthorizationStatus RouteAuthorizationStatus { get; set; }
+
+        private RouteAuthorizationResult(RouteAuthorizationStatus status)
+        {
+        }
+
+        public static IRouteAuthorizationResult Denied { get; } = new RouteAuthorizationResult(RouteAuthorizationStatus.Denied);
+        public static IRouteAuthorizationResult Granted { get; } = new RouteAuthorizationResult(RouteAuthorizationStatus.Authorized);
+        public static IRouteAuthorizationResult NotDetermined { get; } = new RouteAuthorizationResult(RouteAuthorizationStatus.NotDetermined);
     }
 }

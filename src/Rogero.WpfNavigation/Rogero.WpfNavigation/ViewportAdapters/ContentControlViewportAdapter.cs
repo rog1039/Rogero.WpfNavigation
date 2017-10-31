@@ -1,9 +1,10 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
+using Rogero.Options;
 
 namespace Rogero.WpfNavigation
 {
-    public class ContentControlViewportAdapter : IControlViewportAdapter
+    public class ContentControlViewportAdapter : ControlViewportAdapterBase
     {
         private readonly ContentControl _contentControl;
 
@@ -12,9 +13,11 @@ namespace Rogero.WpfNavigation
             _contentControl = contentControl;
         }
 
-        public void AddControl(UIElement control)
+        public override void AddControl(UIElement control)
         {
             _contentControl.Content = control;
         }
+
+        public override Option<UIElement> ActiveControl => _contentControl.Content as UIElement;
     }
 }

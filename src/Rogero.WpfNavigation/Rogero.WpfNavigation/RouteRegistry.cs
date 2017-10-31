@@ -1,10 +1,22 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Windows;
 using Rogero.Options;
 
 namespace Rogero.WpfNavigation
 {
+    public interface IRouteEntry
+    {
+        string Name { get; }
+        string Uri { get; }
+        Type Controller { get; }
+        Type View { get; }
+
+        UIElement CreateView();
+        object CreateViewModel();
+    }
+
     public class RouteRegistry
     {
         public Guid Id { get; } = Guid.NewGuid();
@@ -21,7 +33,7 @@ namespace Rogero.WpfNavigation
             _uriMap.Add(uri, new ViewVmPair(view, viewModelFactory));
         }
 
-        public Option<ViewVmPair> FindViewVm(string uri, object initData)
+        public Option<ViewVmPair> GetViewVmPair(string uri, object initData)
         {
             return _uriMap.TryGetValue(uri);
         }
