@@ -10,8 +10,8 @@ namespace Rogero.WpfNavigation
     {
         string Name { get; }
         string Uri { get; }
-        Type Controller { get; }
-        Type View { get; }
+        Type ViewModelType { get; }
+        Type ViewType { get; }
 
         UIElement CreateView();
         object CreateViewModel();
@@ -41,6 +41,7 @@ namespace Rogero.WpfNavigation
 
     public interface IRouteEntryRegistry
     {
+        Guid Id { get; }
         void RegisterRouteEntry(IRouteEntry routeEntry);
         Option<IRouteEntry> GetRouteEntry(string uri);
     }

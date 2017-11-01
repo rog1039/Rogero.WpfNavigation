@@ -45,7 +45,7 @@ namespace Rogero.WpfNavigation.UnitTests
 
         private async Task<RouteResult> RunRouteWorkflow(TestParameters parameters)
         {
-            var sut = new RouteWorkflowTask2(parameters.RouteRequest,
+            var sut = new RouteWorkflowTask(parameters.RouteRequest,
                                              _fixture.GetMock<IRouteEntryRegistry>().Object,
                                              _fixture.GetMock<IRouteAuthorizationManager>().Object,
                                              _fixture.GetMock<IRouterService>().Object,
@@ -120,8 +120,8 @@ namespace Rogero.WpfNavigation.UnitTests
         {
             public string Name { get; }
             public string Uri { get; }
-            public Type Controller { get; }
-            public Type View { get; }
+            public Type ViewModelType { get; }
+            public Type ViewType { get; }
 
             private readonly UIElement _view;
             private readonly object _viewModel;
@@ -265,24 +265,6 @@ namespace Rogero.WpfNavigation.UnitTests
         public static Task<T> ToTask<T>(this T obj)
         {
             return Task.FromResult(obj);
-        }
-    }
-
-    public class RouteEntryBase : IRouteEntry
-    {
-        public string Name { get; }
-        public string Uri { get; }
-        public Type Controller { get; }
-        public Type View { get; }
-
-        public UIElement CreateView()
-        {
-            return new FrameworkElement();
-        }
-
-        public object CreateViewModel()
-        {
-            return new object();
         }
     }
 }

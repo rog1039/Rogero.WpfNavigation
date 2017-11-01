@@ -57,6 +57,7 @@
     <Compile Include="InternalLogger.cs" />
     <Compile Include="IRouteAuthorizationManager.cs" />
     <Compile Include="IRouteAuthorizationResult.cs" />
+    <Compile Include="RouteRequest.cs" />
     <Compile Include="RouteWorkflowTask.cs" />
     <Compile Include="Logging.cs" />
     <Compile Include="RouteRegistry.cs" />

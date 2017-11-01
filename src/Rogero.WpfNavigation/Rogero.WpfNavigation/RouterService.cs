@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Security.Principal;
 using System.Threading.Tasks;
 using System.Windows;
 using Rogero.Options;
@@ -11,7 +12,7 @@ namespace Rogero.WpfNavigation
     {
         Guid RouterServiceId { get; }
 
-        Task<RouteResult> RouteAsync(string uri, object initData, string viewportName = "");
+        Task<RouteResult> RouteAsync(string uri, object initData, string viewportName, IPrincipal principal);
 
         void RegisterViewport(string viewportName, IControlViewportAdapter viewportAdapter);
         Task<bool> CheckForViewport(string viewportName, TimeSpan timeout);
@@ -26,34 +27,35 @@ namespace Rogero.WpfNavigation
     {
         public Guid RouterServiceId { get; } = Guid.NewGuid();
 
-        internal readonly ILogger Logger;
+        private readonly ILogger _logger;
+        private readonly IRouteEntryRegistry _routeEntryRegistry;
+        private readonly IRouteAuthorizationManager _routeAuthorizationManager;
 
-        private readonly RouteRegistry _routeRegistry;
         private readonly IDictionary<string, IControlViewportAdapter> _viewportAdapters = new Dictionary<string, IControlViewportAdapter>();
 
-        public RouterService(RouteRegistry routeRegistry, ILogger logger)
+        public RouterService(IRouteEntryRegistry routeEntryRegistry, IRouteAuthorizationManager routeAuthorizationManager, ILogger logger)
         {
-            _routeRegistry = routeRegistry;
+            _routeEntryRegistry = routeEntryRegistry;
+            _routeAuthorizationManager = routeAuthorizationManager;
             InternalLogger.LoggerInstance = logger;
-            Logger = logger
+            _logger = logger
                 .ForContext("Class", "RouterService")
                 .ForContext("RouterServiceId", RouterServiceId);
-            Logger.Information("RouterService created with Id: {RouterServiceId}", RouterServiceId);
+            _logger.Information("RouterService created with Id: {RouterServiceId}", RouterServiceId);
         }
 
         public void RegisterViewport(string viewportName, IControlViewportAdapter viewportAdapter)
         {
             _viewportAdapters.Add(viewportName, viewportAdapter);
-            Logger.Information("Viewport registered with name {ViewportName} and Viewport Adapter type {ViewportAdapterType}", viewportName, viewportAdapter.GetType().FullName);
+            _logger.Information("Viewport registered with name {ViewportName} and Viewport Adapter type {ViewportAdapterType}", viewportName, viewportAdapter.GetType().FullName);
         }
 
-        public async Task<RouteResult> RouteAsync(string uri, object initData, string viewportName = "")
+        public async Task<RouteResult> RouteAsync(string uri, object initData, string viewportName, IPrincipal principal)
         {
-            return await RouteWorkflowTask.Go(uri, initData, viewportName, this);
+            var routeRequest = new RouteRequest(uri, initData, viewportName, principal);
+            return await RouteWorkflowTask.Go(routeRequest, _routeEntryRegistry, _routeAuthorizationManager, this, _logger);
         }
-
-
-        internal Option<ViewVmPair> GetViewVmPair(string uri, object initData) => _routeRegistry.GetViewVmPair(uri, initData);
+        
         public Option<IControlViewportAdapter> GetControlViewportAdapter(string viewportName) => _viewportAdapters.TryGetValue(viewportName);
 
         public Option<UIElement> GetActiveControl(string viewportName)

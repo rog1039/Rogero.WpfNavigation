@@ -19,8 +19,8 @@ namespace Rogero.WpfNavigation
         {
             get
             {
-                if (ActiveControl.HasNoValue) return Option<object>.None;
-                if (ActiveControl.Value is FrameworkElement frameworkElement) return frameworkElement.DataContext;
+                if (ActiveControl?.Value is FrameworkElement frameworkElement) return frameworkElement.DataContext;
+
                 return Option<object>.None;
             }
         }

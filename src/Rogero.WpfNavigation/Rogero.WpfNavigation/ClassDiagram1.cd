@@ -15,10 +15,10 @@
     </TypeIdentifier>
     <Lollipop Position="0.2" Collapsed="true" />
   </Class>
-  <Class Name="Rogero.WpfNavigation.RouteWorkflowTask2">
+  <Class Name="Rogero.WpfNavigation.RouteWorkflowTask">
     <Position X="5.75" Y="9" Width="4" />
     <TypeIdentifier>
-      <HashCode>ggAAEIAQEBAAIMBgAEIABACAMEAoAgAACAAhAAAAAQA=</HashCode>
+      <HashCode>ggAAEIAQEBAAIIBgAEIABACAMEAoAgAACAAhAAAAAQA=</HashCode>
       <FileName>RouteWorkflowTask.cs</FileName>
     </TypeIdentifier>
     <ShowAsAssociation>
@@ -29,7 +29,7 @@
   <Class Name="Rogero.WpfNavigation.RouterService">
     <Position X="3.75" Y="1.5" Width="2.25" />
     <TypeIdentifier>
-      <HashCode>CAAgAAAAAAIAAAAAAgCAAAAACAAAAAAAAAIAVAAAAAA=</HashCode>
+      <HashCode>CAAgAAAAAAIAAAAAAgCAAAAQCAAAAAAAAAIAVIAAAAA=</HashCode>
       <FileName>RouterService.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />
@@ -47,6 +47,7 @@
       <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAABAAAA=</HashCode>
       <FileName>IRouteAuthorizationManager.cs</FileName>
     </TypeIdentifier>
+    <Lollipop Position="0.2" />
   </Class>
   <Interface Name="Rogero.WpfNavigation.IRouteEntryRegistry">
     <Position X="11.75" Y="9" Width="2.75" />
@@ -79,7 +80,7 @@
   <Interface Name="Rogero.WpfNavigation.IControlViewportAdapter">
     <Position X="4" Y="7.25" Width="2" />
     <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAIAAAAA=</HashCode>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAoAAAAAABAAAAAAAAAAA=</HashCode>
       <FileName>IControlViewportAdapter.cs</FileName>
     </TypeIdentifier>
   </Interface>
