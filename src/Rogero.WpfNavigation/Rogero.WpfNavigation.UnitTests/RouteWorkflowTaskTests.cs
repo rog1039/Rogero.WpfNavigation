@@ -89,7 +89,7 @@ namespace Rogero.WpfNavigation.UnitTests
         private void ConfigureAuthorization(TestParameters parameters)
         {
             _fixture.GetMock<IRouteAuthorizationManager>()
-                .Setup(z => z.CheckAuthorization(It.IsAny<RouteRequest>(), It.IsAny<RoutingContext>()))
+                .Setup(z => z.CheckAuthorization(It.IsAny<RoutingContext>()))
                 .Returns(async () => parameters.IsAuthorized
                              ? RouteAuthorizationResult.Granted
                              : RouteAuthorizationResult.Denied);

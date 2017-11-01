@@ -21,9 +21,9 @@ namespace Rogero.WpfNavigation
             return await workflow.GoAsync();
         }
 
-        public string Uri { get; }
-        public object InitData { get; }
-        public string ViewportName { get; }
+        public string Uri => _routeRequest.Uri;
+        public object InitData => _routeRequest.InitData;
+        public string ViewportName => _routeRequest.TargetViewportName;
         public Guid RoutingWorkflowId { get; } = Guid.NewGuid();
 
         private readonly ILogger _logger;
@@ -35,44 +35,24 @@ namespace Rogero.WpfNavigation
         private Option<IRouteEntry> _routeEntry;
 
         internal RouteWorkflowTask(
-            string uri, 
-            object initData, 
-            string viewportName,
+            RouteRequest routeRequest,
             IRouteEntryRegistry routeEntryRegistry,
             IRouteAuthorizationManager routeAuthorizationManager,
             IRouterService routerService,
             ILogger logger)
         {
-            Uri = uri;
-            InitData = initData;
-            ViewportName = viewportName;
+            _routeRequest = routeRequest;
 
             _routeEntryRegistry = routeEntryRegistry;
             _routeAuthorizationManager = routeAuthorizationManager;
             _routerService = routerService;
             _logger = logger
                 .ForContext("Class", "RouteWorkflowTask")
-                .ForContext("Uri", uri)
-                .ForContext("ViewportName", viewportName)
-                .ForContext("InitData", initData)
+                .ForContext("Uri", Uri)
+                .ForContext("ViewportName", ViewportName)
+                .ForContext("InitData", InitData)
                 .ForContext("RouterServiceId", _routerService.RouterServiceId)
                 .ForContext("RoutingWorkflowId", RoutingWorkflowId);
-        }
-
-        internal RouteWorkflowTask(
-            RouteRequest routeRequest,
-            IRouteEntryRegistry routeEntryRegistry,
-            IRouteAuthorizationManager routeAuthorizationManager,
-            IRouterService routingService,
-            ILogger logger) : this(routeRequest.Uri,
-                                   routeRequest.InitData,
-                                   routeRequest.TargetViewportName,
-                                   routeEntryRegistry, 
-                                   routeAuthorizationManager, 
-                                   routingService, 
-                                   logger)
-        {
-            _routeRequest = routeRequest;
         }
 
         internal async Task<RouteResult> GoAsync()
@@ -85,7 +65,8 @@ namespace Rogero.WpfNavigation
                     _routeEntry = GetRouteEntry();
                     if (_routeEntry.HasNoValue) return new RouteResult(RouteResultStatusCode.RouteNotFound);
 
-                    var authorized = await CheckRouteAuthorizationAsync(_routeEntry.Value);
+                    var routeContext = new RoutingContext(_routeEntry.Value, _routeRequest);
+                    var authorized = await CheckRouteAuthorizationAsync(routeContext);
                     if (!authorized) return new RouteResult(RouteResultStatusCode.Unauthorized);
 
                     var canDeactivate = await CanDeactivateCurrentRouteAsync(_routeRequest.TargetViewportName);
@@ -110,9 +91,9 @@ namespace Rogero.WpfNavigation
             }
         }
 
-        private async Task<bool> CheckRouteAuthorizationAsync(IRouteEntry routeEntryValue)
+        private async Task<bool> CheckRouteAuthorizationAsync(RoutingContext routingContext)
         {
-            var result = await _routeAuthorizationManager.CheckAuthorization(_routeRequest, null);
+            var result = await _routeAuthorizationManager.CheckAuthorization(routingContext);
             return result == RouteAuthorizationResult.Granted;
         }
 

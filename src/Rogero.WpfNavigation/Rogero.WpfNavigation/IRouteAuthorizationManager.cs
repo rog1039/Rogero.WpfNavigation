@@ -9,12 +9,12 @@ namespace Rogero.WpfNavigation
 {
     public interface IRouteAuthorizationManager
     {
-        Task<IRouteAuthorizationResult> CheckAuthorization(RouteRequest routeRequest, RoutingContext routingContext);
+        Task<IRouteAuthorizationResult> CheckAuthorization(RoutingContext routingContext);
     }
 
     public class AlwaysGrantAccessRouteAuthorizationManager : IRouteAuthorizationManager
     {
-        public async Task<IRouteAuthorizationResult> CheckAuthorization(RouteRequest routeRequest, RoutingContext routingContext)
+        public async Task<IRouteAuthorizationResult> CheckAuthorization(RoutingContext routingContext)
         {
             return RouteAuthorizationResult.Granted;
         }
@@ -29,10 +29,10 @@ namespace Rogero.WpfNavigation
             _routeUriAuthorizers = routeUriAuthorizers;
         }
 
-        public async Task<IRouteAuthorizationResult> CheckAuthorization(RouteRequest routeRequest, RoutingContext routingContext)
+        public async Task<IRouteAuthorizationResult> CheckAuthorization(RoutingContext routingContext)
         {
             var results = _routeUriAuthorizers
-                .Select(z => z.CheckAuthorization(routeRequest, routingContext))
+                .Select(z => z.CheckAuthorization(routingContext))
                 .Where(z => z.HasValue)
                 .Select(z => z.Value)
                 .ToList();
@@ -49,16 +49,24 @@ namespace Rogero.WpfNavigation
 
     public interface IRouteUriAuthorizer
     {
-        Option<IRouteAuthorizationResult> CheckAuthorization(RouteRequest routeRequest, RoutingContext routingContext);
+        Option<IRouteAuthorizationResult> CheckAuthorization(RoutingContext routingContext);
     }
 
     public interface IRoutingContext
     {
-        IPrincipal Principal { get; set; }
+        IRouteEntry RouteEntry { get; set; }
+        RouteRequest RouteRequest { get; set; }
     }
 
     public class RoutingContext : IRoutingContext
     {
-        public IPrincipal Principal { get; set; }
+        public IRouteEntry RouteEntry { get; set; }
+        public RouteRequest RouteRequest { get; set; }
+
+        public RoutingContext(IRouteEntry routeEntry, RouteRequest routeRequest)
+        {
+            RouteEntry = routeEntry;
+            RouteRequest = routeRequest;
+        }
     }
 }
