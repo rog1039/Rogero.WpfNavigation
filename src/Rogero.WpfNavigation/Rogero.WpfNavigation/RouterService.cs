@@ -14,7 +14,8 @@ namespace Rogero.WpfNavigation
     {
         Guid RouterServiceId { get; }
 
-        Task<RouteResult> RouteAsync(string uri, object initData, string viewportName, IPrincipal principal);
+        Task<RouteResult> RouteAsync(RouteRequest routeRequest);
+        Task<RouteResult> RouteAsync(string uri, object initData, string viewportName, ClaimsPrincipal principal);
 
         void RegisterViewport(string viewportName, IControlViewportAdapter viewportAdapter);
         Task<bool> CheckForViewport(string viewportName, TimeSpan timeout);
