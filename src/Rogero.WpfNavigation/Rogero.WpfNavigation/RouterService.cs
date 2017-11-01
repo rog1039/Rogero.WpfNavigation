@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Security.Claims;
 using System.Security.Principal;
 using System.Threading.Tasks;
 using System.Windows;
@@ -51,12 +52,17 @@ namespace Rogero.WpfNavigation
             _logger.Information("Viewport registered with name {ViewportName} and Viewport Adapter type {ViewportAdapterType}", viewportName, viewportAdapter.GetType().FullName);
         }
 
-        public async Task<RouteResult> RouteAsync(string uri, object initData, string viewportName, IPrincipal principal)
+        public async Task<RouteResult> RouteAsync(string uri, object initData, string viewportName, ClaimsPrincipal principal)
         {
             var routeRequest = new RouteRequest(uri, initData, viewportName, principal);
+            return await RouteAsync(routeRequest);
+        }
+
+        public async Task<RouteResult> RouteAsync(RouteRequest routeRequest)
+        {
             return await RouteWorkflowTask.Go(routeRequest, _routeEntryRegistry, _routeAuthorizationManager, this, _logger);
         }
-        
+
         public Option<IControlViewportAdapter> GetControlViewportAdapter(string viewportName) => _viewportAdapters.TryGetValue(viewportName);
 
         public Option<UIElement> GetActiveControl(string viewportName)

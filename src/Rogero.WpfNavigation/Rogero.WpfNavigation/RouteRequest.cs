@@ -1,4 +1,5 @@
-﻿using System.Security.Principal;
+﻿using System.Security.Claims;
+using System.Security.Principal;
 
 namespace Rogero.WpfNavigation
 {
@@ -7,14 +8,15 @@ namespace Rogero.WpfNavigation
         public string Uri { get; set; }
         public object InitData { get; set; }
         public string TargetViewportName { get; set; }
-        public IPrincipal Principal { get; set; }
+        public ClaimsPrincipal Principal { get; set; }
 
-        public RouteRequest(string uri, object initData, string targetViewportName, IPrincipal principal)
+        public RouteRequest(string uri, object initData, string targetViewportName, ClaimsPrincipal principal)
         {
             Uri = uri;
             InitData = initData;
             TargetViewportName = targetViewportName;
             Principal = principal;
+            
         }
 
         public RouteRequest(){}
