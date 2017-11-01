@@ -32,7 +32,7 @@ namespace Rogero.WpfNavigation.WpfTestApp
                 .WriteTo.Seq("http://ws2012r2seq:5341", apiKey: "RrIxpZQpfUjcqk3NzTBY")
                 .CreateLogger();
 
-            RouterService.Value = new RouterService(_registry, null, logger);
+            RouterService.Value = new RouterService(_registry, new AlwaysGrantAccessRouteAuthorizationManager(), logger);
 
             OpenControl1CommandMain = new DelegateCommand(NavigateToOneMain);
             OpenControl2CommandMain = new DelegateCommand(NavigateToTwoMain);
@@ -43,22 +43,22 @@ namespace Rogero.WpfNavigation.WpfTestApp
 
         private void NavigateToTwoMain()
         {
-            var result = _routerService.RouteAsync("control2", null, "MainViewport", null);
+            var result = _routerService.RouteAsync("/control2", null, "MainViewport", null);
         }
 
         private void NavigateToOneMain()
         {
-            var result = _routerService.RouteAsync("control1", null, "MainViewport", null);
+            var result = _routerService.RouteAsync("/control1", null, "MainViewport", null);
         }
 
         private void NavigateToTwoSecond()
         {
-            var result = _routerService.RouteAsync("control2", null, "SecondViewport", null);
+            var result = _routerService.RouteAsync("/control2", null, "SecondViewport", null);
         }
 
         private void NavigateToOneSecond()
         {
-            var result = _routerService.RouteAsync("control1", null, "SecondViewport", null);
+            var result = _routerService.RouteAsync("/control1", null, "SecondViewport", null);
         }
 
         private void Initialize()

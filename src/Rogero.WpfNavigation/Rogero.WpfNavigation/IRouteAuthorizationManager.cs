@@ -12,6 +12,14 @@ namespace Rogero.WpfNavigation
         Task<IRouteAuthorizationResult> CheckAuthorization(RouteRequest routeRequest, RoutingContext routingContext);
     }
 
+    public class AlwaysGrantAccessRouteAuthorizationManager : IRouteAuthorizationManager
+    {
+        public async Task<IRouteAuthorizationResult> CheckAuthorization(RouteRequest routeRequest, RoutingContext routingContext)
+        {
+            return RouteAuthorizationResult.Granted;
+        }
+    }
+
     public class RouteAuthorizationManager : IRouteAuthorizationManager
     {
         private readonly IList<IRouteUriAuthorizer> _routeUriAuthorizers;
