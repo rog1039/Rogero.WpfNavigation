@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Windows;
 
-namespace Rogero.WpfNavigation
+namespace Rogero.WpfNavigation.EnumerableTrees
 {
     public static class EnumerableTreeExtensions
     {

@@ -11,6 +11,7 @@ using Moq;
 using Ploeh.AutoFixture;
 using Rogero.AutoFixture.Helpers;
 using Rogero.Options;
+using Rogero.WpfNavigation.ViewportAdapters;
 using Xunit;
 using Serilog;
 using Serilog.Core;

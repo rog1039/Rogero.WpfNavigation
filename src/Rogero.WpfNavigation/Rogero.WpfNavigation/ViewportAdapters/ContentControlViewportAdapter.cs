@@ -2,7 +2,7 @@
 using System.Windows.Controls;
 using Rogero.Options;
 
-namespace Rogero.WpfNavigation
+namespace Rogero.WpfNavigation.ViewportAdapters
 {
     public class ContentControlViewportAdapter : ControlViewportAdapterBase
     {

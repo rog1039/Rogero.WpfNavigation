@@ -1,7 +1,7 @@
 ﻿using System.Windows;
 using Rogero.Options;
 
-namespace Rogero.WpfNavigation
+namespace Rogero.WpfNavigation.ViewportAdapters
 {
     public interface IControlViewportAdapter
     {

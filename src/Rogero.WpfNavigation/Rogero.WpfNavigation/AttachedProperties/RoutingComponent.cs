@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Windows;
 
-namespace Rogero.WpfNavigation
+namespace Rogero.WpfNavigation.AttachedProperties
 {
     public partial class RoutingComponent
     {

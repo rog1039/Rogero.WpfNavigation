@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Rogero.WpfNavigation
+namespace Rogero.WpfNavigation.EnumerableTrees
 {
     /// <summary>
     /// Defines an interface that must be implemented to generate the LinqToTree methods

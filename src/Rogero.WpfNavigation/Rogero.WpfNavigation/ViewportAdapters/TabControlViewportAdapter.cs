@@ -4,7 +4,7 @@ using System.Windows;
 using System.Windows.Controls;
 using Rogero.Options;
 
-namespace Rogero.WpfNavigation
+namespace Rogero.WpfNavigation.ViewportAdapters
 {
     public class TabControlViewportAdapter : ControlViewportAdapterBase
     {

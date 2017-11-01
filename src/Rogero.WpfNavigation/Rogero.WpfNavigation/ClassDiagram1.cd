@@ -1,17 +1,10 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <ClassDiagram MajorVersion="1" MinorVersion="1" MembersFormat="NameAndType">
-  <Class Name="Rogero.WpfNavigation.RouteRegistry">
-    <Position X="8.25" Y="2.75" Width="3" />
-    <TypeIdentifier>
-      <HashCode>AAACAAAAAAAAAAAAAAAAAAAAAAABABAAAAIAAAAAAAA=</HashCode>
-      <FileName>RouteRegistry.cs</FileName>
-    </TypeIdentifier>
-  </Class>
   <Class Name="Rogero.WpfNavigation.RouteEntryRegistry" BaseTypeListCollapsed="true">
     <Position X="15" Y="8" Width="3.25" />
     <TypeIdentifier>
       <HashCode>AAACAAAAEAAAAAAAAAIAAAAAAAAAAACAAAAAAAAAAAA=</HashCode>
-      <FileName>RouteRegistry.cs</FileName>
+      <FileName>IRouteEntryRegistry.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" Collapsed="true" />
   </Class>
@@ -29,17 +22,10 @@
   <Class Name="Rogero.WpfNavigation.RouterService">
     <Position X="3.75" Y="1.5" Width="2.25" />
     <TypeIdentifier>
-      <HashCode>CAAgAAAAAAIAAAAAAgCAAAAQCAAAAAAAAAIAVIAAAAA=</HashCode>
+      <HashCode>CAAgAAAAAAAAAAAAAgCABAAQKEAAAAAAAAAAFIAAAAA=</HashCode>
       <FileName>RouterService.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />
-  </Class>
-  <Class Name="Rogero.WpfNavigation.ViewVmPair">
-    <Position X="11.5" Y="2.75" Width="2.25" />
-    <TypeIdentifier>
-      <HashCode>AAAAAEAAEAAAAAAAAAEAAAAAAAAAAAAAAAAACAAAAAA=</HashCode>
-      <FileName>ViewVmPair.cs</FileName>
-    </TypeIdentifier>
   </Class>
   <Class Name="Rogero.WpfNavigation.RouteAuthorizationManager" BaseTypeListCollapsed="true">
     <Position X="1" Y="10.25" Width="2.25" />
@@ -52,15 +38,15 @@
   <Interface Name="Rogero.WpfNavigation.IRouteEntryRegistry">
     <Position X="11.75" Y="9" Width="2.75" />
     <TypeIdentifier>
-      <HashCode>AAAAAAAAEAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
-      <FileName>RouteRegistry.cs</FileName>
+      <HashCode>AAACAAAAEAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>IRouteEntryRegistry.cs</FileName>
     </TypeIdentifier>
   </Interface>
   <Interface Name="Rogero.WpfNavigation.IRouteEntry">
     <Position X="11.75" Y="10.5" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAAAAAAAEQAAAAAAAAEAAAQAAAABAAAACAAAAAAAAAA=</HashCode>
-      <FileName>RouteRegistry.cs</FileName>
+      <HashCode>BAAAAAAAEAAAAAAAAAEAAAQAAAAAAAAACAAACAAAAAA=</HashCode>
+      <FileName>IRouteEntryRegistry.cs</FileName>
     </TypeIdentifier>
   </Interface>
   <Interface Name="Rogero.WpfNavigation.IRouteAuthorizationManager">
@@ -77,11 +63,11 @@
       <FileName>IRouteAuthorizationManager.cs</FileName>
     </TypeIdentifier>
   </Interface>
-  <Interface Name="Rogero.WpfNavigation.IControlViewportAdapter">
+  <Interface Name="Rogero.WpfNavigation.ViewportAdapters.IControlViewportAdapter">
     <Position X="4" Y="7.25" Width="2" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAoAAAAAABAAAAAAAAAAA=</HashCode>
-      <FileName>IControlViewportAdapter.cs</FileName>
+      <FileName>ViewportAdapters\IControlViewportAdapter.cs</FileName>
     </TypeIdentifier>
   </Interface>
   <Font Name="Segoe UI" Size="9" />

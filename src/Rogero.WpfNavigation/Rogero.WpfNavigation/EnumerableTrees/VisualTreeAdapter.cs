@@ -2,7 +2,7 @@
 using System.Windows;
 using System.Windows.Media;
 
-namespace Rogero.WpfNavigation
+namespace Rogero.WpfNavigation.EnumerableTrees
 {
     /// <summary>
     /// Adapts a DependencyObject to provide methods required for generate

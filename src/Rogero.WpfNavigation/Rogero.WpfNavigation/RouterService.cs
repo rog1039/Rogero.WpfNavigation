@@ -4,6 +4,7 @@ using System.Security.Principal;
 using System.Threading.Tasks;
 using System.Windows;
 using Rogero.Options;
+using Rogero.WpfNavigation.ViewportAdapters;
 using Serilog;
 
 namespace Rogero.WpfNavigation

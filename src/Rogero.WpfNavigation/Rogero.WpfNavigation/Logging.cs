@@ -26,8 +26,9 @@ namespace Rogero.WpfNavigation
             {
                 Start = start;
                 Description = description;
-                Logger = logger;
-                Logger.ForContext("Description", Description).Information("Started " + Description + " at {StartTime}", Start);
+                Logger = logger.ForContext("Description", Description);
+
+                Logger.Information("Started " + Description + " at {StartTime}", Start);
             }
 
             public void Dispose()
@@ -35,8 +36,8 @@ namespace Rogero.WpfNavigation
                 var end = DateTime.UtcNow;
                 var elapsed = end - Start;
                 var logMessage = $"Finished {Description} in {elapsed:c}.";
-                Logger.ForContext("Description", Description)
-                    .ForContext("Elapsed", elapsed)
+
+                Logger.ForContext("Elapsed", elapsed)
                     .Information(logMessage + " at {EndTime}", end);
             }
         }

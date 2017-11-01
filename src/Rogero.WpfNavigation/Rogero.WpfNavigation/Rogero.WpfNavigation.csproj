@@ -60,14 +60,14 @@
     <Compile Include="RouteRequest.cs" />
     <Compile Include="RouteWorkflowTask.cs" />
     <Compile Include="Logging.cs" />
-    <Compile Include="RouteRegistry.cs" />
+    <Compile Include="IRouteEntryRegistry.cs" />
     <Compile Include="DispatcherExtensions.cs" />
     <Compile Include="ViewportAdapters\ContentControlViewportAdapter.cs" />
     <Compile Include="ControlViewportAdapterFactory.cs" />
-    <Compile Include="EnumerableTreeExtensions.cs" />
+    <Compile Include="EnumerableTrees\EnumerableTreeExtensions.cs" />
     <Compile Include="ICanDeactivate.cs" />
-    <Compile Include="IControlViewportAdapter.cs" />
-    <Compile Include="ILinqTree.cs" />
+    <Compile Include="ViewportAdapters\IControlViewportAdapter.cs" />
+    <Compile Include="EnumerableTrees\ILinqTree.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RouteResult.cs" />
     <Compile Include="RouteResultStatusCode.cs" />
@@ -75,9 +75,8 @@
     <Compile Include="AttachedProperties\RoutingComponent.cs" />
     <Compile Include="RoutingComponentsHelper.cs" />
     <Compile Include="ViewportAdapters\TabControlViewportAdapter.cs" />
-    <Compile Include="DependencyObjectTreeExtensions.cs" />
-    <Compile Include="ViewVmPair.cs" />
-    <Compile Include="VisualTreeAdapter.cs" />
+    <Compile Include="EnumerableTrees\DependencyObjectTreeExtensions.cs" />
+    <Compile Include="EnumerableTrees\VisualTreeAdapter.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ClassDiagram1.cd" />
