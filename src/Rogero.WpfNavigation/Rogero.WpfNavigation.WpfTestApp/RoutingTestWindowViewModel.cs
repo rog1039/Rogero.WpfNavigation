@@ -1,12 +1,8 @@
 ﻿using System;
-using System.Reflection;
-using System.Security.Cryptography;
 using System.Windows;
-using System.Windows.Controls;
 using Rogero.ReactiveProperty;
 using Serilog;
 using Serilog.Core.Enrichers;
-using Serilog.Events;
 
 namespace Rogero.WpfNavigation.WpfTestApp
 {
