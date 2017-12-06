@@ -39,9 +39,6 @@ namespace Rogero.WpfNavigation.UnitTests
             _viewModelInit0ParamsReturnsVoid = _fixture.GetMock<IViewModelInit0ParamsReturnsVoid>().Object;
             _viewModelInit0ParamsReturnsTask = _fixture.GetMock<IViewModelInit0ParamsReturnsTask>().Object;
             _viewModelInit1ParamsReturnsTask = _fixture.GetMock<IViewModelInit1ParamsReturnsTask>().Object;
-
-
-
         }
 
         private async Task<RouteResult> RunRouteWorkflow(TestParameters parameters)

@@ -19,7 +19,7 @@ namespace Rogero.WpfNavigation
     {
         public RouteAuthorizationStatus RouteAuthorizationStatus { get; set; }
 
-        private RouteAuthorizationResult(RouteAuthorizationStatus status) { }
+        private RouteAuthorizationResult(RouteAuthorizationStatus status) { RouteAuthorizationStatus = status; }
 
         public static IRouteAuthorizationResult Denied { get; } = new RouteAuthorizationResult(RouteAuthorizationStatus.Denied);
         public static IRouteAuthorizationResult Granted { get; } = new RouteAuthorizationResult(RouteAuthorizationStatus.Authorized);
