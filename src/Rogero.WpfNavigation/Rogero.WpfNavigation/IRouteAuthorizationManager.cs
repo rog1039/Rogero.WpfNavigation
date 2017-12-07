@@ -33,13 +33,9 @@ namespace Rogero.WpfNavigation
                 .Select(z => z.CheckAuthorization(routingContext))
                 .ToList();
             var allAuthResults = await Task.WhenAll(routeAuthTasks);
-            var authResults = allAuthResults
-                .Where(z => z.HasValue)
-                .Select(z => z.Value)
-                .ToList();
-
-            var notDenied = authResults.All(z => z.RouteAuthorizationStatus != RouteAuthorizationStatus.Denied);
-            var authorizedAtleastOnce = authResults.Any(z => z.RouteAuthorizationStatus == RouteAuthorizationStatus.Authorized);
+            
+            var notDenied = allAuthResults.All(z => z.RouteAuthorizationStatus != RouteAuthorizationStatus.Denied);
+            var authorizedAtleastOnce = allAuthResults.Any(z => z.RouteAuthorizationStatus == RouteAuthorizationStatus.Authorized);
             var authorized = notDenied && authorizedAtleastOnce;
 
             return authorized
@@ -50,7 +46,7 @@ namespace Rogero.WpfNavigation
 
     public interface IRouteUriAuthorizer
     {
-        Task<Option<IRouteAuthorizationResult>> CheckAuthorization(RoutingContext routingContext);
+        Task<IRouteAuthorizationResult> CheckAuthorization(RoutingContext routingContext);
     }
 
     public interface IRoutingContext

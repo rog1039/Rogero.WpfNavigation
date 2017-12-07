@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using System.Windows;
 using Rogero.Options;
 
@@ -22,6 +23,7 @@ namespace Rogero.WpfNavigation
         Guid Id { get; }
         void RegisterRouteEntry(IRouteEntry routeEntry);
         Option<IRouteEntry> GetRouteEntry(string uri);
+        IList<IRouteEntry> GetRouteEntries();
     }
 
     public class RouteEntryRegistry : IRouteEntryRegistry
@@ -36,6 +38,12 @@ namespace Rogero.WpfNavigation
         }
 
         public Option<IRouteEntry> GetRouteEntry(string uri) => _routeEntries.TryGetValue(uri);
+
+        public IList<IRouteEntry> GetRouteEntries()
+        {
+            return _routeEntries.Values.ToList();
+        }
+
         public void RegisterRouteEntry(IRouteEntry routeEntry) => _routeEntries.Add(routeEntry.Uri, routeEntry);
     }
 }

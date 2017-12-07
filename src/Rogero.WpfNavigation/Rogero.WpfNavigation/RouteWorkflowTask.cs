@@ -93,9 +93,22 @@ namespace Rogero.WpfNavigation
 
         private async Task<bool> CheckRouteAuthorizationAsync(RoutingContext routingContext)
         {
-            var routeAuthResult = await _routeAuthorizationManager.CheckAuthorization(routingContext);
-            var granted = routeAuthResult.Equals(RouteAuthorizationResult.Granted);
-            return granted;
+            try
+            {
+
+                var routeAuthResult = await _routeAuthorizationManager.CheckAuthorization(routingContext);
+                var granted = routeAuthResult.Equals(RouteAuthorizationResult.Granted);
+
+                if (granted) LogInfo("RouteEntry authorization granted.");
+                else LogInfo("RouteEntry authorization denied.");
+
+                return granted;
+            }
+            catch (Exception e)
+            {
+                _logger.Error(e, "Exception checking route authorization.");
+                throw;
+            }
         }
 
         private Option<IRouteEntry> GetRouteEntry()

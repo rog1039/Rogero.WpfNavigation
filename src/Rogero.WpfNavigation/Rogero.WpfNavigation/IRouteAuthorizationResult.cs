@@ -56,4 +56,10 @@ namespace Rogero.WpfNavigation
         }
         #endregion
     }
+
+    public static class RouteAuthorizationResultExtensions
+    {
+        public static bool IsDenied(this IRouteAuthorizationResult result) => result.Equals(RouteAuthorizationResult.Denied);
+        public static bool IsGranted(this IRouteAuthorizationResult result) => result.Equals(RouteAuthorizationResult.Granted);
+    }
 }
