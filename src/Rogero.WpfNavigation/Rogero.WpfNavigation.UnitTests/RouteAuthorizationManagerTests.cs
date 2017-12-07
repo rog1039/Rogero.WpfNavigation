@@ -22,19 +22,19 @@ namespace Rogero.WpfNavigation.UnitTests
             var alwaysGrantMoq = new Mock<IRouteUriAuthorizer>();
             alwaysGrantMoq
                 .Setup(z => z.CheckAuthorization(It.IsAny<RoutingContext>()))
-                .Returns(() => RouteAuthorizationResult.Granted.ToOption().ToTask());
+                .Returns(() => RouteAuthorizationResult.Granted.ToTask());
             _alwaysGrantAuthorizer = alwaysGrantMoq.Object;
 
             var alwaysDenyMoq = new Mock<IRouteUriAuthorizer>();
             alwaysDenyMoq
                 .Setup(z => z.CheckAuthorization(It.IsAny<RoutingContext>()))
-                .Returns(() => RouteAuthorizationResult.Denied.ToOption().ToTask());
+                .Returns(() => RouteAuthorizationResult.Denied.ToTask());
             _alwaysDenyAuthorizer = alwaysDenyMoq.Object;
 
             var alwaysNotDeterminedMoq = new Mock<IRouteUriAuthorizer>();
             alwaysNotDeterminedMoq
                 .Setup(z => z.CheckAuthorization(It.IsAny<RoutingContext>()))
-                .Returns(() => RouteAuthorizationResult.NotDetermined.ToOption().ToTask());
+                .Returns(() => RouteAuthorizationResult.NotDetermined.ToTask());
             _alwaysNotDeterminedAuthorizer = alwaysNotDeterminedMoq.Object;
         }
 
