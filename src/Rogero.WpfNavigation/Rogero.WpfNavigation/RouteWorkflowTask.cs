@@ -77,8 +77,11 @@ namespace Rogero.WpfNavigation
 
                     var viewModel = GetViewModel(_routeEntry.Value);
                     await InitializeViewModelAsync(viewModel);
+                    
                     var view = GetView(_routeEntry.Value);
                     AssignDataContext(view, viewModel);
+
+                    if (viewModel is IViewAware viewAware) AssignViewToViewModel(view, viewAware);
 
                     var routeResult = AddViewToUi(view);
                     return routeResult;
@@ -89,6 +92,14 @@ namespace Rogero.WpfNavigation
                     throw;
                 }
             }
+        }
+
+        private void AssignViewToViewModel(UIElement view, IViewAware viewAware)
+        {
+            LogInfo("ViewModel {ViewModelType} is IViewAware so calleding LoadView() with the View {ViewType}", 
+                    viewAware.GetType().FullName, 
+                    view.GetType().FullName);
+            viewAware.LoadView(view);
         }
 
         private async Task<bool> CheckRouteAuthorizationAsync(RoutingContext routingContext)
@@ -113,7 +124,7 @@ namespace Rogero.WpfNavigation
 
         private Option<IRouteEntry> GetRouteEntry()
         {
-            LogInfo("Finding RouteEntry.");
+            LogInfo($"Finding RouteEntry for uri: {Uri}");
             var routeEntry = _routeEntryRegistry.GetRouteEntry(Uri);
             if (routeEntry.HasNoValue)
                 LogInfo("Did not find RouteEntry");
