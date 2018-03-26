@@ -85,9 +85,10 @@ namespace Rogero.WpfNavigation
         {
             async Task<bool> FindViewport()
             {
-                var start = DateTime.UtcNow;
-                TimeSpan Elapsed() => DateTime.UtcNow - start;
-                bool viewportExists = false;
+                var startTime = DateTime.UtcNow;
+                var viewportExists = false;
+
+                TimeSpan Elapsed() => DateTime.UtcNow - startTime;
 
                 bool TimedOut() => Elapsed() > timeout;
 
@@ -99,7 +100,7 @@ namespace Rogero.WpfNavigation
 
                 while (!TimedOut() && !ViewportFound())
                 {
-                    await Task.Delay(TimeSpan.FromMilliseconds(100));
+                    await Task.Delay(TimeSpan.FromMilliseconds(50));
                 }
 
                 return viewportExists;
