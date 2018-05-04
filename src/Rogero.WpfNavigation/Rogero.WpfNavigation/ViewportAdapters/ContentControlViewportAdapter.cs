@@ -20,4 +20,23 @@ namespace Rogero.WpfNavigation.ViewportAdapters
 
         public override Option<UIElement> ActiveControl => _contentControl.Content as UIElement;
     }
+
+    public class WindowViewportAdapter : ControlViewportAdapterBase
+    {
+        private readonly Window _window;
+
+        public WindowViewportAdapter(Window window)
+        {
+            _window = window;
+        }
+
+
+        public override void AddControl(UIElement control)
+        {
+            _window.Content = control;
+            _window.Show();
+        }
+
+        public override Option<UIElement> ActiveControl { get; }
+    }
 }

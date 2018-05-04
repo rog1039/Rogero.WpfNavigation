@@ -19,6 +19,7 @@ namespace Rogero.WpfNavigation
         void RegisterViewport(string viewportName, IControlViewportAdapter viewportAdapter);
         Task<bool> CheckForViewport(string viewportName, TimeSpan timeout);
         Option<IControlViewportAdapter> GetControlViewportAdapter(string viewportName);
+        Option<IControlViewportAdapter> GetControlViewportAdapter(RouteRequest routeRequest);
 
 
         Option<UIElement> GetActiveControl(string viewportName);
@@ -35,7 +36,10 @@ namespace Rogero.WpfNavigation
 
         private readonly IDictionary<string, IControlViewportAdapter> _viewportAdapters = new Dictionary<string, IControlViewportAdapter>();
 
-        public RouterService(IRouteEntryRegistry routeEntryRegistry, IRouteAuthorizationManager routeAuthorizationManager, ILogger logger)
+        public RouterService(
+            IRouteEntryRegistry routeEntryRegistry, 
+            IRouteAuthorizationManager routeAuthorizationManager, 
+            ILogger logger)
         {
             _routeEntryRegistry = routeEntryRegistry;
             _routeAuthorizationManager = routeAuthorizationManager;
@@ -63,7 +67,57 @@ namespace Rogero.WpfNavigation
             return await RouteWorkflowTask.Go(routeRequest, _routeEntryRegistry, _routeAuthorizationManager, this, _logger);
         }
 
-        public Option<IControlViewportAdapter> GetControlViewportAdapter(string viewportName) => _viewportAdapters.TryGetValue(viewportName);
+        public Option<IControlViewportAdapter> GetControlViewportAdapter(string viewportName)
+        {
+            var viewportType = GetViewportType(viewportName);
+            if (viewportType == ViewportType.NewWindow)
+            {
+                var window = new Window();
+                var viewportAdapter = new WindowViewportAdapter(window);
+                return viewportAdapter;
+            }
+            else if (viewportType == ViewportType.Dialog)
+            {
+                
+            }
+            else if(viewportType == ViewportType.NormalViewport)
+            {
+                return _viewportAdapters.TryGetValue(viewportName);
+            }
+        }
+
+        public Option<IControlViewportAdapter> GetControlViewportAdapter(RouteRequest routeRequest)
+        {
+            var viewportType = GetViewportType(routeRequest.TargetViewportName);
+            if (viewportType == ViewportType.NewWindow)
+            {
+                var window = new Window();
+                var viewportAdapter = new WindowViewportAdapter(window);
+                return viewportAdapter;
+            }
+            else
+            {
+                return _viewportAdapters.TryGetValue(routeRequest.TargetViewportName);
+            }
+        }
+
+        private ViewportType GetViewportType(string viewportName)
+        {
+            if (viewportName.Equals(":newwindow", StringComparison.InvariantCultureIgnoreCase))
+            {
+                return ViewportType.NewWindow;
+            }
+            if (viewportName.Equals(":dialog", StringComparison.InvariantCultureIgnoreCase))
+            {
+                return ViewportType.NewWindow;
+            }
+            if (viewportName.Equals(":modaldialog", StringComparison.InvariantCultureIgnoreCase))
+            {
+                return ViewportType.NewWindow;
+            }
+
+            return ViewportType.NormalViewport;
+        }
 
         public Option<UIElement> GetActiveControl(string viewportName)
         {
@@ -111,5 +165,13 @@ namespace Rogero.WpfNavigation
         }
 
         public bool DoesViewportExist(string viewportName) => _viewportAdapters.ContainsKey(viewportName);
+    }
+
+    public enum ViewportType
+    {
+        NormalViewport,
+        NewWindow,
+        Dialog,
+        ModalDialog
     }
 }
