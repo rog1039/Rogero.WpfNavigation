@@ -84,6 +84,8 @@ namespace Rogero.WpfNavigation
             {
                 return _viewportAdapters.TryGetValue(viewportName);
             }
+
+            throw new NotImplementedException();
         }
 
         public Option<IControlViewportAdapter> GetControlViewportAdapter(RouteRequest routeRequest)
