@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using AutoFixture;
 using Moq;
-using Ploeh.AutoFixture;
 using Rogero.AutoFixture.Helpers;
-using Rogero.Options;
 using Rogero.WpfNavigation.UnitTests.Extensions;
 using Shouldly;
 using Xunit;
