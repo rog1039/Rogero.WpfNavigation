@@ -152,3 +152,4 @@ $RECYCLE.BIN/
 
 # Visual Studio 2015 Specific Folders
 .vs/
+src/Rogero.WpfNavigation/.idea/
