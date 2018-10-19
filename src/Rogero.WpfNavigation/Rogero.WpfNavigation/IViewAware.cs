@@ -8,6 +8,6 @@ namespace Rogero.WpfNavigation
 {
     public interface IViewAware
     {
-        void LoadView(object view);
+        Task LoadView(object view);
     }
 }
