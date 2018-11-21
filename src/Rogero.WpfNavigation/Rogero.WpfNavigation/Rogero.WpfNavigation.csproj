@@ -60,6 +60,7 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AwaitExtensions.cs" />
     <Compile Include="ICanActivate.cs" />
     <Compile Include="InternalLogger.cs" />
     <Compile Include="IRouteAuthorizationManager.cs" />
