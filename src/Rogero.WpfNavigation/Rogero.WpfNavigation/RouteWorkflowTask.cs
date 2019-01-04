@@ -23,7 +23,7 @@ namespace Rogero.WpfNavigation
         
         public static void AssignViewToViewModel(ILogger logger, UIElement view, IViewAware viewAware)
         {
-            logger.Information("ViewModel {ViewModelType} is IViewAware so calleding LoadView() with the View {ViewType}", 
+            logger.Information("ViewModel {ViewModelType} is IViewAware so calling LoadView() with the View {ViewType}", 
                 viewAware.GetType().FullName, 
                 view.GetType().FullName);
             viewAware.LoadView(view);
