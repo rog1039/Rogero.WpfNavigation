@@ -1,6 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
+using Rogero.Options;
+using Rogero.WpfNavigation.ExtensionMethods;
+
 
 namespace Rogero.WpfNavigation.EnumerableTrees
 {
@@ -50,6 +53,26 @@ namespace Rogero.WpfNavigation.EnumerableTrees
                 adapter = new VisualTreeAdapter(parent);
                 parent = adapter.Parent;
             }
+        }
+
+        /// <summary>
+        /// Returns a collection of ancestor elements.
+        /// </summary>
+        public static IEnumerable<DependencyObject> LogicalTreeAncestors(this DependencyObject item)
+        {
+            var parent = LogicalTreeHelper.GetParent(item);
+            while (parent != null)
+            {
+                yield return parent;
+                parent = LogicalTreeHelper.GetParent(parent);
+            }
+        }
+
+        public static Option<Window> FindParentWindow(this DependencyObject item)
+        {
+            var logicalTreeAncestors = item.LogicalTreeAncestors();
+            var window = logicalTreeAncestors.FirstOrDefault(z => z.GetType().IsSameAsOrSubclassOf(typeof(Window)));
+            return (Option<Window>) window;
         }
 
         /// <summary>

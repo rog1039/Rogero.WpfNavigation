@@ -4,6 +4,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using System.Windows;
 using Rogero.Options;
+using Rogero.WpfNavigation.EnumerableTrees;
 using Rogero.WpfNavigation.ViewportAdapters;
 using Serilog;
 
@@ -24,6 +25,8 @@ namespace Rogero.WpfNavigation
 
         Option<UIElement> GetActiveControl(string viewportName);
         Option<object> GetActiveDataContext(string viewportName);
+
+        void ChangeWindowTitle(string viewportName, string windowTitle);
     }
 
     public class RouterService : IRouterService
@@ -135,6 +138,23 @@ namespace Rogero.WpfNavigation
             return viewportAdapter.HasNoValue
                 ? Option<UIElement>.None
                 : viewportAdapter.Value.ActiveDataContext;
+        }
+
+        public void ChangeWindowTitle(string viewportName, string windowTitle)
+        {
+            try
+            {
+                var viewportOption = GetControlViewportAdapter(viewportName);
+                if(viewportOption.HasNoValue) throw new InvalidOperationException($"No viewport could be found with name {viewportName}");
+
+                var viewport     = viewportOption.Value;
+                var parentWindow = viewport.ActiveControl.Value.FindParentWindow();
+                parentWindow.DoIfValue(window => window.Title = windowTitle);
+            }
+            catch (Exception e)
+            {
+                _logger.Error(e, "Error updating the window title.");
+            }
         }
 
         public async Task<bool> CheckForViewport(string viewportName, TimeSpan timeout)
