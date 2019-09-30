@@ -43,6 +43,8 @@ class Build : NukeBuild
     string MygetPushUrl { get; set; } = "https://www.myget.org/F/progero/api/v2/package";
     string MygetSymbolPushUrl { get; set; } = "https://www.myget.org/F/progero/symbols/api/v2/package";
 
+    string[] NugetRestoreSources = new[] { "https://www.myget.org/F/progero/api/v2/package", "https://api.nuget.org/v3/index.json" };
+
 
     [Solution] readonly Solution Solution;
     [GitRepository] readonly GitRepository GitRepository;
@@ -77,6 +79,7 @@ class Build : NukeBuild
         {
             MSBuild(s => s
                         .SetTargetPath(Solution)
+                        .SetRestoreSources(NugetRestoreSources)
                         .SetTargets("Restore"));
         });
 
