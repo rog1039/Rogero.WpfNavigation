@@ -34,6 +34,8 @@ class Build : NukeBuild
     [Parameter("Configuration to build - Default is 'Debug' (local) or 'Release' (server)")]
     readonly Configuration Configuration = IsLocalBuild ? Configuration.Debug : Configuration.Release;
 
+    string PackagesDirectory  => Solution.Directory / "packages";
+
     [Parameter("Nuget API Key to push Nuget package to nuget.org")]
     string NugetApiKey { get; set; }
 
@@ -85,6 +87,7 @@ class Build : NukeBuild
             NuGetTasks
                 .NuGetRestore(s => s
                                   .SetSource(NugetRestoreSources)
+                                  .SetOutputDirectory(PackagesDirectory)
                                   .SetTargetPath(Solution));
         });
 
