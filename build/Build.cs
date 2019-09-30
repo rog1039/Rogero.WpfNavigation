@@ -120,6 +120,7 @@ class Build : NukeBuild
                                .SetVersion(version.GetAssemblyVersion())
                                .SetOutputDirectory(ArtifactsDirectory)
                                .EnableSymbols()
+                               .SetProperty("Configuration", Configuration.ToString())
                                .SetSymbolPackageFormat(NuGetSymbolPackageFormat.symbols_nupkg)
                                .SetTargetPath(wpfNavigationProject.Path)
                 );
