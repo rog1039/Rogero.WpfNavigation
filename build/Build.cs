@@ -81,6 +81,11 @@ class Build : NukeBuild
                         .SetTargetPath(Solution)
                         .SetRestoreSources(NugetRestoreSources)
                         .SetTargets("Restore"));
+
+            NuGetTasks
+                .NuGetRestore(s => s
+                                  .SetSource(NugetRestoreSources)
+                                  .SetTargetPath(Solution));
         });
 
     Target Compile => _ => _
