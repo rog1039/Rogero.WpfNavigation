@@ -41,6 +41,9 @@ class Build : NukeBuild
 
     [Parameter("Myget API Key to push Nuget package to myget.org public progero feed.")]
     string MygetApiKey { get; set; }
+    
+    [Parameter("Perform a full nuget delete and reinstall")] readonly bool ReinstallAllPackages = false;
+
 
     string MygetPushUrl { get; set; } = "https://www.myget.org/F/progero/api/v2/package";
     string MygetSymbolPushUrl { get; set; } = "https://www.myget.org/F/progero/symbols/api/v2/package";
