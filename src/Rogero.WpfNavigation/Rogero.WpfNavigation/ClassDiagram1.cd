@@ -3,7 +3,7 @@
   <Class Name="Rogero.WpfNavigation.RouteEntryRegistry" BaseTypeListCollapsed="true">
     <Position X="15" Y="8" Width="3.25" />
     <TypeIdentifier>
-      <HashCode>AAACAAAAEAAAAAAAAAIAAAAAAAAAAACAAAAAAAAAAAA=</HashCode>
+      <HashCode>AAACAAAAUAAAAAAAAAIAAAAAAAAAAACAAAAAAAAAAAA=</HashCode>
       <FileName>IRouteEntryRegistry.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" Collapsed="true" />
@@ -11,7 +11,7 @@
   <Class Name="Rogero.WpfNavigation.RouteWorkflowTask">
     <Position X="5.75" Y="9" Width="4" />
     <TypeIdentifier>
-      <HashCode>ggAAEIAQEBAAIIBgAEIABACAMEAoAgAACAAhAAAAAQA=</HashCode>
+      <HashCode>AgAAAAAAABAAAAAAAEAABACAMEAoAgAACAAgAAAAAQA=</HashCode>
       <FileName>RouteWorkflowTask.cs</FileName>
     </TypeIdentifier>
     <ShowAsAssociation>
@@ -20,9 +20,9 @@
     </ShowAsAssociation>
   </Class>
   <Class Name="Rogero.WpfNavigation.RouterService">
-    <Position X="3.75" Y="1.5" Width="2.25" />
+    <Position X="3.75" Y="1.5" Width="4.25" />
     <TypeIdentifier>
-      <HashCode>CAAgAAAAAAAAAAAAAgCABAAQKEAAAAAAAAAAFIAAAAA=</HashCode>
+      <HashCode>CAAgAAgAAAAAAAAAAgCABAAQKEAAAAAAAAAAFoAAAAA=</HashCode>
       <FileName>RouterService.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />
@@ -38,7 +38,7 @@
   <Interface Name="Rogero.WpfNavigation.IRouteEntryRegistry">
     <Position X="11.75" Y="9" Width="2.75" />
     <TypeIdentifier>
-      <HashCode>AAACAAAAEAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <HashCode>AAACAAAAUAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>IRouteEntryRegistry.cs</FileName>
     </TypeIdentifier>
   </Interface>
