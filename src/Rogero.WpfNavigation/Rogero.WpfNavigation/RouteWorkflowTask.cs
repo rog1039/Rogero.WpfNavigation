@@ -172,13 +172,13 @@ namespace Rogero.WpfNavigation
             return true;
         }
 
-        public static RouteResult AddViewToUi(ILogger logger, IRouterService _routerService, string viewportName, UIElement view)
+        public static RouteResult AddViewToUi(ILogger logger, RouteWorkflowTask routeWorkflowTask, IRouterService _routerService, string viewportName, UIElement view)
         {
             var viewport = _routerService.GetControlViewportAdapter(viewportName);
             if (viewport.HasValue)
             {
                 logger.Information("Found target viewport, {ViewportName}, of type {ViewportType}. Adding view to viewport.", viewportName, viewport.Value.GetType());
-                viewport.Value.AddControl(view);
+                viewport.Value.AddControl(view, routeWorkflowTask);
                 logger.Information("View {ViewType} added to viewport {ViewportName}, type: {ViewportType}", view.GetType(), viewportName, viewport.Value.GetType());
                 return RouteResult.Succeeded;
             }
@@ -187,6 +187,18 @@ namespace Rogero.WpfNavigation
                 logger.Error("No viewport found with specified viewport name, {ViewportName}", viewportName);
                 return new RouteResult(RouteResultStatusCode.NoViewportFound);
             }
+        }
+    }
+    
+    public class ViewControllerPair
+    {
+        public FrameworkElement View { get; set; }
+        public object Controller { get; set; }
+
+        public ViewControllerPair(FrameworkElement view, object controller)
+        {
+            View = view;
+            Controller = controller;
         }
     }
     
@@ -206,7 +218,13 @@ namespace Rogero.WpfNavigation
         public string Uri => _routeRequest.Uri;
         public object InitData => _routeRequest.InitData;
         public string ViewportName => _routeRequest.TargetViewportName;
+        public Option<string> RouteName => RouteEntry.Value?.Name.ToOption();
         public Guid RoutingWorkflowId { get; } = Guid.NewGuid();
+        public Option<IRouteEntry> RouteEntry { get; private set; }
+        public Guid RouteRequestId => _routeRequest.RouteRequestId;
+        
+        public object Controller { get; private set; }
+        public UIElement View { get; private set; }
 
         private readonly ILogger _logger;
         private readonly IRouteEntryRegistry _routeEntryRegistry;
@@ -214,7 +232,6 @@ namespace Rogero.WpfNavigation
         private readonly IRouterService _routerService;
 
         private readonly RouteRequest _routeRequest;
-        private Option<IRouteEntry> _routeEntry;
 
         internal RouteWorkflowTask(
             RouteRequest routeRequest,
@@ -244,11 +261,11 @@ namespace Rogero.WpfNavigation
             {
                 try
                 {
-                    _routeEntry = RouteWorkflow.GetRouteEntry(_logger, _routeEntryRegistry, _routeRequest.Uri);
-                    if (_routeEntry.HasNoValue) return new RouteResult(RouteResultStatusCode.RouteNotFound);
+                    RouteEntry = RouteWorkflow.GetRouteEntry(_logger, _routeEntryRegistry, _routeRequest.Uri);
+                    if (RouteEntry.HasNoValue) return new RouteResult(RouteResultStatusCode.RouteNotFound);
 
                     //Check authorization
-                    var routeContext = new RoutingContext(_routeEntry.Value, _routeRequest);
+                    var routeContext = new RoutingContext(RouteEntry.Value, _routeRequest);
                     var authorized = await RouteWorkflow.CheckRouteAuthorizationAsync(_logger, _routeAuthorizationManager,routeContext);
                     if (!authorized) return new RouteResult(RouteResultStatusCode.Unauthorized);
 
@@ -261,17 +278,17 @@ namespace Rogero.WpfNavigation
                     if (!canActivate) return new RouteResult(RouteResultStatusCode.CanActivateFailed);
 
                     //Get ViewModel
-                    var viewModel = RouteWorkflow.GetViewModel(_logger, _routeEntry.Value);
-                    await RouteWorkflow.InitViewModel(_logger, _routeRequest.InitData, viewModel);
+                    Controller = RouteWorkflow.GetViewModel(_logger, RouteEntry.Value);
+                    await RouteWorkflow.InitViewModel(_logger, _routeRequest.InitData, Controller);
                     //Get View
-                    var view = RouteWorkflow.GetView(_logger, _routeEntry.Value);
-                    RouteWorkflow.AssignDataContext(_logger, view, viewModel);
+                    View = RouteWorkflow.GetView(_logger, RouteEntry.Value);
+                    RouteWorkflow.AssignDataContext(_logger, View, Controller);
 
                     //IViewAware context
-                    if (viewModel is IViewAware viewAware) RouteWorkflow.AssignViewToViewModel(_logger, view, viewAware);
-
+                    if (Controller is IViewAware viewAware) RouteWorkflow.AssignViewToViewModel(_logger, View, viewAware);
+                    
                     //Add View to UI
-                    var routeResult = RouteWorkflow.AddViewToUi(_logger, _routerService, ViewportName, view);
+                    var routeResult = RouteWorkflow.AddViewToUi(_logger, this, _routerService, ViewportName, View);
                     
                     return routeResult;
                 }

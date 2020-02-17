@@ -148,7 +148,8 @@ namespace Rogero.WpfNavigation
                 if(viewportOption.HasNoValue) throw new InvalidOperationException($"No viewport could be found with name {viewportName}");
 
                 var viewport     = viewportOption.Value;
-                var parentWindow = viewport.ActiveControl.Value.FindParentWindow();
+                var associatedUI = viewport.AssociatedUIElement;
+                var parentWindow = associatedUI.FindParentWindow();
                 parentWindow.DoIfValue(window => window.Title = windowTitle);
             }
             catch (Exception e)

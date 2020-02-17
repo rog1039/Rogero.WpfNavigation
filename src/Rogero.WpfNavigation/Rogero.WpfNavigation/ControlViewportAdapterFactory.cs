@@ -11,7 +11,7 @@ namespace Rogero.WpfNavigation
     {
         private static readonly IDictionary<Type, Type> FrameworkElementToViewportAdapterMap = new Dictionary<Type, Type>()
         {
-            { typeof(ContentControl), typeof(ContentControlViewportAdapter) }
+            { typeof(ContentControl), typeof(ContentControlViewportAdapter) },
         };
 
         public static void AddViewportControlAdapter(Type frameworkElement, Type viewportAdapter)

@@ -15,9 +15,10 @@ namespace Rogero.WpfNavigation.ViewportAdapters
         {
             _tabControl = tabControl;
             _tabControl.ItemsSource = _views;
+            AssociatedUIElement = tabControl;
         }
 
-        public override void AddControl(UIElement control)
+        public override void AddControl(UIElement control, RouteWorkflowTask routeWorkflowTask)
         {
             _views.Add(control);
         }
@@ -32,5 +33,8 @@ namespace Rogero.WpfNavigation.ViewportAdapters
                 throw new InvalidOperationException("Never expected GetActiveControl to return an item outside the UIElement hierarchy.");
             }
         }
+
+        public override UIElement AssociatedUIElement { get; set; }
     }
+    
 }
