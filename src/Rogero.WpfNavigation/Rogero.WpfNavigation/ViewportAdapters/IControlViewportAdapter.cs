@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System.Collections.Generic;
+using System.Windows;
 using Rogero.Options;
 
 namespace Rogero.WpfNavigation.ViewportAdapters
@@ -8,13 +9,14 @@ namespace Rogero.WpfNavigation.ViewportAdapters
         void AddControl(UIElement control, RouteWorkflowTask routeWorkflowTask);
         Option<UIElement> ActiveControl { get; }
         Option<object> ActiveDataContext { get; }
-        UIElement AssociatedUIElement { get; set; }
+        UIElement ViewportUIElement { get; set; }
+        IList<RouteWorkflowTask> GetActiveRouteWorkflows();
+        void Activate(RouteWorkflowTask activeRouteWorkflow);
+        void CloseScreen(RouteWorkflowTask workflow);
     }
 
     public abstract class ControlViewportAdapterBase : IControlViewportAdapter
     {
-        public abstract void AddControl(UIElement control, RouteWorkflowTask routeWorkflowTask);
-        public abstract Option<UIElement> ActiveControl { get; }
 
         public Option<object> ActiveDataContext
         {
@@ -26,6 +28,13 @@ namespace Rogero.WpfNavigation.ViewportAdapters
             }
         }
 
-        public abstract UIElement AssociatedUIElement { get; set; }
+        public UIElement ViewportUIElement { get; set; }
+        public virtual Option<UIElement> ActiveControl { get; }
+        
+        public abstract IList<RouteWorkflowTask> GetActiveRouteWorkflows();
+        public abstract void Activate(RouteWorkflowTask activeRouteWorkflow);
+        public abstract void CloseScreen(RouteWorkflowTask workflow);
+
+        public abstract void AddControl(UIElement control, RouteWorkflowTask routeWorkflowTask);
     }
 }

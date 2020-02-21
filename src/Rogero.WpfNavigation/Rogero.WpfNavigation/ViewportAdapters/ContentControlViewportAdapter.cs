@@ -1,18 +1,29 @@
-﻿using System.Windows;
+﻿using System.Collections.Generic;
+using System.Windows;
 using System.Windows.Controls;
 using Rogero.Options;
 
 namespace Rogero.WpfNavigation.ViewportAdapters
 {
-    public class ContentControlViewportAdapter : ControlViewportAdapterBase
+    public abstract class SingleContentViewportAdapter : ControlViewportAdapterBase
+    {
+        protected RouteWorkflowTask _routeWorkflowTask;
+
+        public override IList<RouteWorkflowTask> GetActiveRouteWorkflows()
+        {
+            return new List<RouteWorkflowTask>(){_routeWorkflowTask};
+        }
+        
+        public override Option<UIElement> ActiveControl => _routeWorkflowTask.View;
+    }
+    public class ContentControlViewportAdapter : SingleContentViewportAdapter
     {
         private readonly ContentControl _contentControl;
-        private RouteWorkflowTask _routeWorkflowTask;
 
         public ContentControlViewportAdapter(ContentControl contentControl)
         {
             _contentControl = contentControl;
-            AssociatedUIElement = contentControl;
+            ViewportUIElement = contentControl;
         }
 
         public override void AddControl(UIElement control, RouteWorkflowTask routeWorkflowTask)
@@ -21,28 +32,42 @@ namespace Rogero.WpfNavigation.ViewportAdapters
             _routeWorkflowTask = routeWorkflowTask;
         }
 
-        public override Option<UIElement> ActiveControl => _contentControl.Content as UIElement;
-        public override UIElement AssociatedUIElement { get; set; }
+        public override void Activate(RouteWorkflowTask activeRouteWorkflow)
+        {
+            //There is nothing to do here since a ContentControl is showing its only content already.
+        }
+
+        public override void CloseScreen(RouteWorkflowTask workflow)
+        {
+            _contentControl.Content = null;
+        }
     }
 
-    public class WindowViewportAdapter : ControlViewportAdapterBase
+    public class WindowViewportAdapter : SingleContentViewportAdapter
     {
         private readonly Window _window;
 
         public WindowViewportAdapter(Window window)
         {
             _window = window;
-            AssociatedUIElement = window;
+            ViewportUIElement = window;
         }
 
+        public override void Activate(RouteWorkflowTask activeRouteWorkflow)
+        {
+            _window.BringWindowToFront(null);
+        }
 
         public override void AddControl(UIElement control, RouteWorkflowTask routeWorkflowTask)
         {
+            _routeWorkflowTask = routeWorkflowTask;
             _window.Content = control;
             _window.Show();
         }
 
-        public override Option<UIElement> ActiveControl { get; }
-        public override UIElement AssociatedUIElement { get; set; }
+        public override void CloseScreen(RouteWorkflowTask workflow)
+        {
+            _window.Close();
+        }
     }
 }

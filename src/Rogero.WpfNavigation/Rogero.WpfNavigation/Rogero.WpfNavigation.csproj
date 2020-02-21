@@ -82,9 +82,11 @@
     <Compile Include="RouterService.cs" />
     <Compile Include="AttachedProperties\RoutingComponent.cs" />
     <Compile Include="RoutingComponentsHelper.cs" />
+    <Compile Include="ViewportAdapters\PreviousWindowActiveState.cs" />
     <Compile Include="ViewportAdapters\TabControlViewportAdapter.cs" />
     <Compile Include="EnumerableTrees\DependencyObjectTreeExtensions.cs" />
     <Compile Include="EnumerableTrees\VisualTreeAdapter.cs" />
+    <Compile Include="ViewportAdapters\WindowExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

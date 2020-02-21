@@ -204,7 +204,7 @@ namespace Rogero.WpfNavigation
     
     public class RouteWorkflowTask
     {
-        public static async Task<RouteResult> Go(
+        public static RouteWorkflowTask Go(
             RouteRequest routeRequest,
             IRouteEntryRegistry routeEntryRegistry,
             IRouteAuthorizationManager routeAuthorizationManager,
@@ -212,7 +212,8 @@ namespace Rogero.WpfNavigation
             ILogger logger)
         {
             var workflow = new RouteWorkflowTask(routeRequest, routeEntryRegistry, routeAuthorizationManager, routerService, logger);
-            return await workflow.GoAsync();
+            workflow.RouteResult = workflow.GoAsync();
+            return workflow;
         }
 
         public string Uri => _routeRequest.Uri;
@@ -222,6 +223,8 @@ namespace Rogero.WpfNavigation
         public Guid RoutingWorkflowId { get; } = Guid.NewGuid();
         public Option<IRouteEntry> RouteEntry { get; private set; }
         public Guid RouteRequestId => _routeRequest.RouteRequestId;
+        public Task<RouteResult> RouteResult { get; private set; }
+        public DateTime Started { get; } = DateTime.UtcNow;
         
         public object Controller { get; private set; }
         public UIElement View { get; private set; }
@@ -298,6 +301,11 @@ namespace Rogero.WpfNavigation
                     throw;
                 }
             }
+        }
+
+        public override string ToString()
+        {
+            return $"{RouteName}: {Uri} -> {ViewportName}";
         }
 
         private void LogInfo(string message) => _logger.Information(message);

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using System.Windows;
@@ -15,59 +16,102 @@ namespace Rogero.WpfNavigation
         Guid RouterServiceId { get; }
 
         Task<RouteResult> RouteAsync(RouteRequest routeRequest);
-        Task<RouteResult> RouteAsync(string uri, object initData, string viewportName, ClaimsPrincipal principal);
 
-        void RegisterViewport(string viewportName, IControlViewportAdapter viewportAdapter);
-        Task<bool> CheckForViewport(string viewportName, TimeSpan timeout);
-        Option<IControlViewportAdapter> GetControlViewportAdapter(string viewportName);
+        Task<RouteResult> RouteAsync(string        uri,          object          initData,
+                                            string viewportName, ClaimsPrincipal principal);
+
+        void                     ActivateExistingRouteWorkflow(RouteWorkflowTask routeWorkflowTask);
+        IEnumerable<RouteWorkflowTask> GetExistingRouteWorkflowTasks();
+
+        void RegisterViewport(string                                             viewportName,
+                                                         IControlViewportAdapter viewportAdapter);
+
+        Task<bool> CheckForViewport(string                        viewportName,
+                                                         TimeSpan timeout);
+
+        Option<IControlViewportAdapter> GetControlViewportAdapter(string       viewportName);
         Option<IControlViewportAdapter> GetControlViewportAdapter(RouteRequest routeRequest);
 
 
-        Option<UIElement> GetActiveControl(string viewportName);
-        Option<object> GetActiveDataContext(string viewportName);
+        Option<UIElement> GetActiveControl(string     viewportName);
+        Option<object>    GetActiveDataContext(string viewportName);
 
         void ChangeWindowTitle(string viewportName, string windowTitle);
+        void CloseScreen(string url);
     }
 
     public class RouterService : IRouterService
     {
         public Guid RouterServiceId { get; } = Guid.NewGuid();
 
-        private readonly ILogger _logger;
-        private readonly IRouteEntryRegistry _routeEntryRegistry;
+        private readonly ILogger                    _logger;
+        private readonly IRouteEntryRegistry        _routeEntryRegistry;
         private readonly IRouteAuthorizationManager _routeAuthorizationManager;
 
-        private readonly IDictionary<string, IControlViewportAdapter> _viewportAdapters = new Dictionary<string, IControlViewportAdapter>();
+        private readonly IDictionary<string, IControlViewportAdapter> _viewportAdapters =
+            new Dictionary<string, IControlViewportAdapter>();
 
         public RouterService(
-            IRouteEntryRegistry routeEntryRegistry, 
-            IRouteAuthorizationManager routeAuthorizationManager, 
-            ILogger logger)
+            IRouteEntryRegistry        routeEntryRegistry,
+            IRouteAuthorizationManager routeAuthorizationManager,
+            ILogger                    logger)
         {
-            _routeEntryRegistry = routeEntryRegistry;
-            _routeAuthorizationManager = routeAuthorizationManager;
+            _routeEntryRegistry           = routeEntryRegistry;
+            _routeAuthorizationManager    = routeAuthorizationManager;
             InternalLogger.LoggerInstance = logger;
             _logger = logger
-                .ForContext("Class", "RouterService")
+                .ForContext("Class",           "RouterService")
                 .ForContext("RouterServiceId", RouterServiceId);
             _logger.Information("RouterService created with Id: {RouterServiceId}", RouterServiceId);
+        }
+
+        public IEnumerable<RouteWorkflowTask> GetExistingRouteWorkflowTasks()
+        {
+            return _viewportAdapters
+                    .SelectMany(z => z.Value.GetActiveRouteWorkflows())
+                ;
         }
 
         public void RegisterViewport(string viewportName, IControlViewportAdapter viewportAdapter)
         {
             _viewportAdapters.Add(viewportName, viewportAdapter);
-            _logger.Information("Viewport registered with name {ViewportName} and Viewport Adapter type {ViewportAdapterType}", viewportName, viewportAdapter.GetType().FullName);
+            _logger.Information(
+                "Viewport registered with name {ViewportName} and Viewport Adapter type {ViewportAdapterType}",
+                viewportName, viewportAdapter.GetType().FullName);
         }
 
-        public async Task<RouteResult> RouteAsync(string uri, object initData, string viewportName, ClaimsPrincipal principal)
+        public async Task<RouteResult> RouteAsync(string          uri, object initData, string viewportName,
+                                                  ClaimsPrincipal principal)
         {
             var routeRequest = new RouteRequest(uri, initData, viewportName, principal);
             return await RouteAsync(routeRequest);
         }
 
+        public void ActivateExistingRouteWorkflow(RouteWorkflowTask routeWorkflowTask)
+        {
+            foreach (var viewportAdapter in _viewportAdapters)
+            {
+                foreach (var activeRouteWorkflow in viewportAdapter.Value.GetActiveRouteWorkflows())
+                {
+                    if (activeRouteWorkflow== routeWorkflowTask)
+                    {
+                        viewportAdapter.Value.Activate(activeRouteWorkflow);
+                        _logger.Information(
+                            $"Found RouteWorkflowTask for URI: {routeWorkflowTask.Uri} with Guid: {activeRouteWorkflow.RoutingWorkflowId}.");
+                        return;
+                    }
+                }
+            }
+
+            //If we get here, then no matching RouteWorkflowTask was found in all the viewport adapters.
+            _logger.Information($"Existing RouteWorkflowTask for URI: {routeWorkflowTask.Uri} not found.");
+        }
+
         public async Task<RouteResult> RouteAsync(RouteRequest routeRequest)
         {
-            return await RouteWorkflowTask.Go(routeRequest, _routeEntryRegistry, _routeAuthorizationManager, this, _logger);
+            var routeWorkflow =
+                RouteWorkflowTask.Go(routeRequest, _routeEntryRegistry, _routeAuthorizationManager, this, _logger);
+            return await routeWorkflow.RouteResult;
         }
 
         public Option<IControlViewportAdapter> GetControlViewportAdapter(string viewportName)
@@ -75,15 +119,12 @@ namespace Rogero.WpfNavigation
             var viewportType = GetViewportType(viewportName);
             if (viewportType == ViewportType.NewWindow)
             {
-                var window = new Window();
+                var window          = new Window();
                 var viewportAdapter = new WindowViewportAdapter(window);
                 return viewportAdapter;
             }
-            else if (viewportType == ViewportType.Dialog)
-            {
-                
-            }
-            else if(viewportType == ViewportType.NormalViewport)
+            else if (viewportType == ViewportType.Dialog) { }
+            else if (viewportType == ViewportType.NormalViewport)
             {
                 return _viewportAdapters.TryGetValue(viewportName);
             }
@@ -96,7 +137,7 @@ namespace Rogero.WpfNavigation
             var viewportType = GetViewportType(routeRequest.TargetViewportName);
             if (viewportType == ViewportType.NewWindow)
             {
-                var window = new Window();
+                var window          = new Window();
                 var viewportAdapter = new WindowViewportAdapter(window);
                 return viewportAdapter;
             }
@@ -112,10 +153,12 @@ namespace Rogero.WpfNavigation
             {
                 return ViewportType.NewWindow;
             }
+
             if (viewportName.Equals(":dialog", StringComparison.InvariantCultureIgnoreCase))
             {
                 return ViewportType.NewWindow;
             }
+
             if (viewportName.Equals(":modaldialog", StringComparison.InvariantCultureIgnoreCase))
             {
                 return ViewportType.NewWindow;
@@ -145,10 +188,11 @@ namespace Rogero.WpfNavigation
             try
             {
                 var viewportOption = GetControlViewportAdapter(viewportName);
-                if(viewportOption.HasNoValue) throw new InvalidOperationException($"No viewport could be found with name {viewportName}");
+                if (viewportOption.HasNoValue)
+                    throw new InvalidOperationException($"No viewport could be found with name {viewportName}");
 
                 var viewport     = viewportOption.Value;
-                var associatedUI = viewport.AssociatedUIElement;
+                var associatedUI = viewport.ViewportUIElement;
                 var parentWindow = associatedUI.FindParentWindow();
                 parentWindow.DoIfValue(window => window.Title = windowTitle);
             }
@@ -158,11 +202,23 @@ namespace Rogero.WpfNavigation
             }
         }
 
+        public void CloseScreen(string url)
+        {
+            var adapterAndWorkflows = from adapter in _viewportAdapters.Values
+                                     from workflow in adapter.GetActiveRouteWorkflows()
+                                     where workflow.Uri == url
+                                     select (adapter, workflow);
+            foreach (var adapterAndWorkflow in adapterAndWorkflows)
+            {
+                adapterAndWorkflow.adapter.CloseScreen(adapterAndWorkflow.workflow);
+            }
+        }
+
         public async Task<bool> CheckForViewport(string viewportName, TimeSpan timeout)
         {
             async Task<bool> FindViewport()
             {
-                var startTime = DateTime.UtcNow;
+                var startTime      = DateTime.UtcNow;
                 var viewportExists = false;
 
                 TimeSpan Elapsed() => DateTime.UtcNow - startTime;
@@ -188,6 +244,14 @@ namespace Rogero.WpfNavigation
         }
 
         public bool DoesViewportExist(string viewportName) => _viewportAdapters.ContainsKey(viewportName);
+
+        public IList<RouteWorkflowTask> GetActiveRouteWorkflows()
+        {
+            var allActiveRouteWorkflows = _viewportAdapters.Values
+                .SelectMany(z => z.GetActiveRouteWorkflows())
+                .ToList();
+            return allActiveRouteWorkflows;
+        }
     }
 
     public enum ViewportType
