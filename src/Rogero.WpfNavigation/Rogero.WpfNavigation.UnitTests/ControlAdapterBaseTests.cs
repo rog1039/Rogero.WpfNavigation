@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System.Collections.Generic;
+using System.Windows;
 using Rogero.Options;
 using Rogero.WpfNavigation.ViewportAdapters;
 using Shouldly;
@@ -22,11 +23,25 @@ namespace Rogero.WpfNavigation.UnitTests
     {
         private UIElement _control;
 
-        public override void AddControl(UIElement control)
+        public override void AddControl(UIElement control, RouteWorkflowTask routeWorkflowTask)
         {
-            _control = control;
+            throw new System.NotImplementedException();
         }
 
         public override Option<UIElement> ActiveControl => _control;
+        public override IList<RouteWorkflowTask> GetActiveRouteWorkflows()
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public override void Activate(RouteWorkflowTask activeRouteWorkflow)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public override void CloseScreen(RouteWorkflowTask workflow)
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }
