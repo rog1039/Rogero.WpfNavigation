@@ -149,6 +149,14 @@ namespace Rogero.WpfNavigation
 
         public static async Task<bool> CanDeactivateCurrentRouteAsync(ILogger logger, IRouterService routerService, string viewportName, string uri, object initData)
         {
+            var viewportExists = CheckViewportNameExists(viewportName, routerService);
+            if (!viewportExists)
+            {
+                logger.Information("Target viewport is not a normal viewport (likely either a new window or dialog. " +
+                                   "Therefore, there is no existing viewmodel to call CanDeactivate upon.");
+                return true;
+            }
+            
             var currentViewModel = routerService.GetActiveDataContext(viewportName);
             if (currentViewModel.HasNoValue)
             {
@@ -164,6 +172,23 @@ namespace Rogero.WpfNavigation
             }
             logger.Information("Current viewmodel, {CurrentViewModelType}, does not implement CanDeactivate", currentViewModel.GetType().FullName);
             return true;
+        }
+
+        /// <summary>
+        /// Tell us if the ViewportName exists in this router service. If the viewport is for a new window or dialog,
+        /// then this automatically returns false. Will only return true for "normal" viewport names.
+        /// </summary>
+        /// <param name="viewportName"></param>
+        /// <param name="routerService"></param>
+        /// <returns></returns>
+        private static bool CheckViewportNameExists(string viewportName, IRouterService routerService)
+        {
+            var viewportType = ViewportNames.GetViewportTypeFromName(viewportName);
+            if (viewportType != ViewportType.NormalViewport) return false;
+
+            var controlViewportAdapter = routerService.GetControlViewportAdapter(viewportName);
+            var viewportExists = controlViewportAdapter != null;
+            return viewportExists;
         }
 
         public static async Task<bool> CanActivateNewRouteAsync(ILogger logger)

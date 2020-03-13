@@ -17,17 +17,17 @@ namespace Rogero.WpfNavigation
 
         Task<RouteResult> RouteAsync(RouteRequest routeRequest);
 
-        Task<RouteResult> RouteAsync(string        uri,          object          initData,
-                                            string viewportName, ClaimsPrincipal principal);
+        Task<RouteResult> RouteAsync(string uri,          object          initData,
+                                     string viewportName, ClaimsPrincipal principal);
 
-        void                     ActivateExistingRouteWorkflow(RouteWorkflowTask routeWorkflowTask);
+        void                           ActivateExistingRouteWorkflow(RouteWorkflowTask routeWorkflowTask);
         IEnumerable<RouteWorkflowTask> GetExistingRouteWorkflowTasks();
 
-        void RegisterViewport(string                                             viewportName,
-                                                         IControlViewportAdapter viewportAdapter);
+        void RegisterViewport(string                  viewportName,
+                              IControlViewportAdapter viewportAdapter);
 
-        Task<bool> CheckForViewport(string                        viewportName,
-                                                         TimeSpan timeout);
+        Task<bool> CheckForViewport(string   viewportName,
+                                    TimeSpan timeout);
 
         Option<IControlViewportAdapter> GetControlViewportAdapter(string       viewportName);
         Option<IControlViewportAdapter> GetControlViewportAdapter(RouteRequest routeRequest);
@@ -37,7 +37,7 @@ namespace Rogero.WpfNavigation
         Option<object>    GetActiveDataContext(string viewportName);
 
         void ChangeWindowTitle(string viewportName, string windowTitle);
-        void CloseScreen(string url);
+        void CloseScreen(string       url);
     }
 
     public class RouterService : IRouterService
@@ -93,7 +93,7 @@ namespace Rogero.WpfNavigation
             {
                 foreach (var activeRouteWorkflow in viewportAdapter.Value.GetActiveRouteWorkflows())
                 {
-                    if (activeRouteWorkflow== routeWorkflowTask)
+                    if (activeRouteWorkflow == routeWorkflowTask)
                     {
                         viewportAdapter.Value.Activate(activeRouteWorkflow);
                         _logger.Information(
@@ -147,24 +147,9 @@ namespace Rogero.WpfNavigation
             }
         }
 
-        private ViewportType GetViewportType(string viewportName)
+        public static ViewportType GetViewportType(string viewportName)
         {
-            if (viewportName.Equals(":newwindow", StringComparison.InvariantCultureIgnoreCase))
-            {
-                return ViewportType.NewWindow;
-            }
-
-            if (viewportName.Equals(":dialog", StringComparison.InvariantCultureIgnoreCase))
-            {
-                return ViewportType.NewWindow;
-            }
-
-            if (viewportName.Equals(":modaldialog", StringComparison.InvariantCultureIgnoreCase))
-            {
-                return ViewportType.NewWindow;
-            }
-
-            return ViewportType.NormalViewport;
+            return ViewportNames.GetViewportTypeFromName(viewportName);
         }
 
         public Option<UIElement> GetActiveControl(string viewportName)
@@ -205,9 +190,9 @@ namespace Rogero.WpfNavigation
         public void CloseScreen(string url)
         {
             var adapterAndWorkflows = from adapter in _viewportAdapters.Values
-                                     from workflow in adapter.GetActiveRouteWorkflows()
-                                     where workflow.Uri == url
-                                     select (adapter, workflow);
+                                      from workflow in adapter.GetActiveRouteWorkflows()
+                                      where workflow.Uri == url
+                                      select (adapter, workflow);
             foreach (var adapterAndWorkflow in adapterAndWorkflows)
             {
                 adapterAndWorkflow.adapter.CloseScreen(adapterAndWorkflow.workflow);
@@ -260,5 +245,32 @@ namespace Rogero.WpfNavigation
         NewWindow,
         Dialog,
         ModalDialog
+    }
+
+    public static class ViewportNames
+    {
+        public const string NewWindow = ":newwindow";
+        public const string Dialog = ":dialog";
+        public const string ModalDialog = ":modaldialog";
+
+        public static ViewportType GetViewportTypeFromName(string viewportName)
+        {
+            if (viewportName.Equals(ViewportNames.NewWindow, StringComparison.InvariantCultureIgnoreCase))
+            {
+                return ViewportType.NewWindow;
+            }
+
+            if (viewportName.Equals(ViewportNames.Dialog, StringComparison.InvariantCultureIgnoreCase))
+            {
+                return ViewportType.Dialog;
+            }
+
+            if (viewportName.Equals(ViewportNames.ModalDialog, StringComparison.InvariantCultureIgnoreCase))
+            {
+                return ViewportType.ModalDialog;
+            }
+
+            return ViewportType.NormalViewport;
+        }
     }
 }
