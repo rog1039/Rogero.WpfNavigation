@@ -16,22 +16,17 @@ namespace Rogero.WpfNavigation
         Guid RouterServiceId { get; }
 
         Task<RouteResult> RouteAsync(RouteRequest routeRequest);
-
-        Task<RouteResult> RouteAsync(string uri,          object          initData,
-                                     string viewportName, ClaimsPrincipal principal);
+        Task<RouteResult> RouteAsync(string       uri, object initData, string viewportName, ClaimsPrincipal principal);
 
         void                           ActivateExistingRouteWorkflow(RouteWorkflowTask routeWorkflowTask);
         IEnumerable<RouteWorkflowTask> GetExistingRouteWorkflowTasks();
 
-        void RegisterViewport(string                  viewportName,
-                              IControlViewportAdapter viewportAdapter);
+        void RegisterViewport(string viewportName, IControlViewportAdapter viewportAdapter);
 
-        Task<bool> CheckForViewport(string   viewportName,
-                                    TimeSpan timeout);
+        Task<bool> CheckForViewport(string viewportName, TimeSpan timeout);
 
         Option<IControlViewportAdapter> GetControlViewportAdapter(string       viewportName);
         Option<IControlViewportAdapter> GetControlViewportAdapter(RouteRequest routeRequest);
-
 
         Option<UIElement> GetActiveControl(string     viewportName);
         Option<object>    GetActiveDataContext(string viewportName);
@@ -80,8 +75,7 @@ namespace Rogero.WpfNavigation
                 viewportName, viewportAdapter.GetType().FullName);
         }
 
-        public async Task<RouteResult> RouteAsync(string          uri, object initData, string viewportName,
-                                                  ClaimsPrincipal principal)
+        public async Task<RouteResult> RouteAsync(string uri, object initData, string viewportName, ClaimsPrincipal principal)
         {
             var routeRequest = new RouteRequest(uri, initData, viewportName, principal);
             return await RouteAsync(routeRequest);
@@ -134,17 +128,7 @@ namespace Rogero.WpfNavigation
 
         public Option<IControlViewportAdapter> GetControlViewportAdapter(RouteRequest routeRequest)
         {
-            var viewportType = GetViewportType(routeRequest.TargetViewportName);
-            if (viewportType == ViewportType.NewWindow)
-            {
-                var window          = new Window();
-                var viewportAdapter = new WindowViewportAdapter(window);
-                return viewportAdapter;
-            }
-            else
-            {
-                return _viewportAdapters.TryGetValue(routeRequest.TargetViewportName);
-            }
+            return GetControlViewportAdapter(routeRequest.TargetViewportName);
         }
 
         public static ViewportType GetViewportType(string viewportName)
@@ -236,41 +220,6 @@ namespace Rogero.WpfNavigation
                 .SelectMany(z => z.GetActiveRouteWorkflows())
                 .ToList();
             return allActiveRouteWorkflows;
-        }
-    }
-
-    public enum ViewportType
-    {
-        NormalViewport,
-        NewWindow,
-        Dialog,
-        ModalDialog
-    }
-
-    public static class ViewportNames
-    {
-        public const string NewWindow = ":newwindow";
-        public const string Dialog = ":dialog";
-        public const string ModalDialog = ":modaldialog";
-
-        public static ViewportType GetViewportTypeFromName(string viewportName)
-        {
-            if (viewportName.Equals(ViewportNames.NewWindow, StringComparison.InvariantCultureIgnoreCase))
-            {
-                return ViewportType.NewWindow;
-            }
-
-            if (viewportName.Equals(ViewportNames.Dialog, StringComparison.InvariantCultureIgnoreCase))
-            {
-                return ViewportType.Dialog;
-            }
-
-            if (viewportName.Equals(ViewportNames.ModalDialog, StringComparison.InvariantCultureIgnoreCase))
-            {
-                return ViewportType.ModalDialog;
-            }
-
-            return ViewportType.NormalViewport;
         }
     }
 }

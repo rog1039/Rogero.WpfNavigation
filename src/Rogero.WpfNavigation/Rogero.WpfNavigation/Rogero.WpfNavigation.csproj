@@ -87,6 +87,8 @@
     <Compile Include="EnumerableTrees\DependencyObjectTreeExtensions.cs" />
     <Compile Include="EnumerableTrees\VisualTreeAdapter.cs" />
     <Compile Include="ViewportAdapters\WindowExtensions.cs" />
+    <Compile Include="ViewportNames.cs" />
+    <Compile Include="ViewportType.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

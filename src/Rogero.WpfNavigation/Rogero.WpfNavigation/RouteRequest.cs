@@ -17,7 +17,6 @@ namespace Rogero.WpfNavigation
             InitData = initData;
             TargetViewportName = targetViewportName;
             Principal = principal;
-            
         }
 
         public RouteRequest(){}
