@@ -16,7 +16,7 @@ namespace Rogero.WpfNavigation
         Guid RouterServiceId { get; }
 
         Task<RouteResult> RouteAsync(RouteRequest routeRequest);
-        Task<RouteResult> RouteAsync(string       uri, object initData, string viewportName, ClaimsPrincipal principal);
+        Task<RouteResult> RouteAsync(string       uri, object initData, ViewportOptions viewportOptions, ClaimsPrincipal principal);
 
         void                           ActivateExistingRouteWorkflow(RouteWorkflowTask routeWorkflowTask);
         IEnumerable<RouteWorkflowTask> GetExistingRouteWorkflowTasks();
@@ -25,14 +25,16 @@ namespace Rogero.WpfNavigation
 
         Task<bool> CheckForViewport(string viewportName, TimeSpan timeout);
 
-        Option<IControlViewportAdapter> GetControlViewportAdapter(string       viewportName);
-        Option<IControlViewportAdapter> GetControlViewportAdapter(RouteRequest routeRequest);
+        Option<IControlViewportAdapter> GetControlViewportAdapter(ViewportOptions viewportOptions);
 
-        Option<UIElement> GetActiveControl(string     viewportName);
-        Option<object>    GetActiveDataContext(string viewportName);
+        Option<UIElement> GetActiveControl(ViewportOptions     viewportOptions);
+        Option<object>    GetActiveDataContext(ViewportOptions viewportOptions);
 
-        void ChangeWindowTitle(string viewportName, string windowTitle);
-        void CloseScreen(string       url);
+        void ChangeWindowTitle(StandardViewportOptions viewportOptions,
+                               string                  windowTitle);
+
+        void                            CloseScreen(string                                         url);
+        Option<IControlViewportAdapter> GetExistingStandardViewportAdapter(StandardViewportOptions standardViewportOptions);
     }
 
     public class RouterService : IRouterService
@@ -75,9 +77,9 @@ namespace Rogero.WpfNavigation
                 viewportName, viewportAdapter.GetType().FullName);
         }
 
-        public async Task<RouteResult> RouteAsync(string uri, object initData, string viewportName, ClaimsPrincipal principal)
+        public async Task<RouteResult> RouteAsync(string uri, object initData, ViewportOptions viewportOptions, ClaimsPrincipal principal)
         {
-            var routeRequest = new RouteRequest(uri, initData, viewportName, principal);
+            var routeRequest = new RouteRequest(uri, initData, viewportOptions, principal);
             return await RouteAsync(routeRequest);
         }
 
@@ -108,62 +110,82 @@ namespace Rogero.WpfNavigation
             return await routeWorkflow.RouteResult;
         }
 
-        public Option<IControlViewportAdapter> GetControlViewportAdapter(string viewportName)
+        public Option<IControlViewportAdapter> GetControlViewportAdapter(ViewportOptions viewportOptions)
         {
-            var viewportType = GetViewportType(viewportName);
-            if (viewportType == ViewportType.NewWindow)
+            switch (viewportOptions)
             {
-                var window          = new Window();
-                var viewportAdapter = new WindowViewportAdapter(window);
-                return viewportAdapter;
+                case NewWindowViewportOptions newWindowViewportOptions:
+                    var windowSize      = newWindowViewportOptions.DesiredWindowSize;
+                    var window          = new Window() {Width = windowSize.Width, Height = windowSize.Height};
+                    var viewportAdapter = new WindowViewportAdapter(window);
+                    return viewportAdapter;
+                    break;
+                case StandardViewportOptions standardViewportOptions:
+                    return GetExistingStandardViewportAdapter(standardViewportOptions);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(viewportOptions),
+                                                          $"No code to handle {viewportOptions.GetType()} viewport options.");
             }
-            else if (viewportType == ViewportType.Dialog) { }
-            else if (viewportType == ViewportType.NormalViewport)
+        }
+
+        public Option<IControlViewportAdapter> GetExistingStandardViewportAdapter(StandardViewportOptions standardViewportOptions)
+        {
+            return _viewportAdapters.TryGetValue(standardViewportOptions.Name);
+        }
+
+        public Option<UIElement> GetActiveControl(ViewportOptions viewportOptions)
+        {
+            switch (viewportOptions)
             {
-                return _viewportAdapters.TryGetValue(viewportName);
+                case NewWindowViewportOptions newWindowViewportOptions:
+                    return Option<UIElement>.None;
+                case StandardViewportOptions standardViewportOptions:
+                    var viewportAdapter = GetExistingStandardViewportAdapter(standardViewportOptions);
+                    return viewportAdapter.Value?.ViewportUIElement;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(viewportOptions));
             }
-
-            throw new NotImplementedException();
         }
 
-        public Option<IControlViewportAdapter> GetControlViewportAdapter(RouteRequest routeRequest)
+        // public Option<UIElement> GetActiveControl(string viewportName)
+        // {
+        //     var viewportAdapter = GetControlViewportAdapter(viewportName);
+        //     return viewportAdapter.HasNoValue
+        //         ? Option<UIElement>.None
+        //         : viewportAdapter.Value.ActiveControl;
+        // }
+
+        public Option<object> GetActiveDataContext(ViewportOptions viewportOptions)
         {
-            return GetControlViewportAdapter(routeRequest.TargetViewportName);
+            switch (viewportOptions)
+            {
+                case NewWindowViewportOptions newWindowViewportOptions:
+                    return Option<object>.None;
+                case StandardViewportOptions standardViewportOptions:
+                    var viewportAdapter = GetExistingStandardViewportAdapter(standardViewportOptions);
+                    return viewportAdapter.Value?.ActiveDataContext;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(viewportOptions));
+            }
         }
 
-        public static ViewportType GetViewportType(string viewportName)
-        {
-            return ViewportNames.GetViewportTypeFromName(viewportName);
-        }
-
-        public Option<UIElement> GetActiveControl(string viewportName)
-        {
-            var viewportAdapter = GetControlViewportAdapter(viewportName);
-            return viewportAdapter.HasNoValue
-                ? Option<UIElement>.None
-                : viewportAdapter.Value.ActiveControl;
-        }
-
-        public Option<object> GetActiveDataContext(string viewportName)
-        {
-            var viewportAdapter = GetControlViewportAdapter(viewportName);
-            return viewportAdapter.HasNoValue
-                ? Option<UIElement>.None
-                : viewportAdapter.Value.ActiveDataContext;
-        }
-
-        public void ChangeWindowTitle(string viewportName, string windowTitle)
+        public void ChangeWindowTitle(StandardViewportOptions viewportOptions, string windowTitle)
         {
             try
             {
-                var viewportOption = GetControlViewportAdapter(viewportName);
-                if (viewportOption.HasNoValue)
-                    throw new InvalidOperationException($"No viewport could be found with name {viewportName}");
-
-                var viewport     = viewportOption.Value;
-                var associatedUI = viewport.ViewportUIElement;
-                var parentWindow = associatedUI.FindParentWindow();
-                parentWindow.DoIfValue(window => window.Title = windowTitle);
+                var viewportMaybe = GetExistingStandardViewportAdapter(viewportOptions);
+                switch (viewportMaybe.Value)
+                {
+                    case null:
+                        throw new InvalidOperationException($"No viewport could be found with name {viewportOptions}");
+                        break;
+                    case {} viewportAdapter:
+                        var associatedUI = viewportAdapter.ViewportUIElement;
+                        var parentWindow = associatedUI.FindParentWindow();
+                        parentWindow.DoIfValue(window => window.Title = windowTitle);
+                        return;
+                }
             }
             catch (Exception e)
             {

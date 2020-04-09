@@ -5,20 +5,21 @@ namespace Rogero.WpfNavigation
 {
     public class RouteRequest
     {
-        public string Uri { get; set; }
-        public object InitData { get; set; }
-        public string TargetViewportName { get; set; }
-        public ClaimsPrincipal Principal { get; set; }
-        public Guid RouteRequestId { get; set; }
+        public string          Uri             { get; set; }
+        public object          InitData        { get; set; }
+        public ViewportOptions ViewportOptions { get; set; }
+        public ClaimsPrincipal Principal       { get; set; }
 
-        public RouteRequest(string uri, object initData, string targetViewportName, ClaimsPrincipal principal)
+        public Guid RouteRequestId { get; set; } = Guid.NewGuid();
+
+        public RouteRequest(string uri, object initData, ViewportOptions viewportOptions, ClaimsPrincipal principal)
         {
-            Uri = uri;
-            InitData = initData;
-            TargetViewportName = targetViewportName;
-            Principal = principal;
+            Uri             = uri;
+            InitData        = initData;
+            ViewportOptions = viewportOptions;
+            Principal       = principal;
         }
 
-        public RouteRequest(){}
+        public RouteRequest() { }
     }
 }
