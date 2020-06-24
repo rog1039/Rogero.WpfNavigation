@@ -39,22 +39,22 @@ namespace Rogero.WpfNavigation.WpfTestApp
 
         private void NavigateToTwoMain()
         {
-            var result = _routerService.RouteAsync("/control2", null, "MainViewport", null);
+            var result = _routerService.RouteAsync("/control2", null, ViewportOptions.MainViewport(), null);
         }
 
         private void NavigateToOneMain()
         {
-            var result = _routerService.RouteAsync("/control1", null, "MainViewport", null);
+            var result = _routerService.RouteAsync("/control1", null, ViewportOptions.MainViewport(), null);
         }
 
         private void NavigateToTwoSecond()
         {
-            var result = _routerService.RouteAsync("/control2", null, "SecondViewport", null);
+            var result = _routerService.RouteAsync("/control2", null, new StandardViewportOptions("SecondViewport"), null);
         }
 
         private void NavigateToOneSecond()
         {
-            var result = _routerService.RouteAsync("/control1", null, "SecondViewport", null);
+            var result = _routerService.RouteAsync("/control1", null, new StandardViewportOptions("SecondViewport"), null);
         }
 
         private void Initialize()

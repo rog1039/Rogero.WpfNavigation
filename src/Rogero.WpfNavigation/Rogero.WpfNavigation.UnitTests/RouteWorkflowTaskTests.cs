@@ -58,7 +58,7 @@ namespace Rogero.WpfNavigation.UnitTests
                 .Setup(z => z.GetRouteEntry(It.IsAny<string>()))
                 .Returns(() => ((IRouteEntry)_routeEntryBase).ToOption());
             _fixture.GetMock<IRouterService>()
-                .Setup(z => z.GetControlViewportAdapter(It.IsAny<string>()))
+                .Setup(z => z.GetControlViewportAdapter(It.IsAny<ViewportOptions>()))
                 .Returns(() => _contentControlViewportAdapter);
 
         }
@@ -75,7 +75,7 @@ namespace Rogero.WpfNavigation.UnitTests
         private void ConfigureICanDeactivate(TestParameters parameters)
         {
             _fixture.GetMock<IRouterService>()
-                .Setup(z => z.GetActiveDataContext(It.IsAny<string>()))
+                .Setup(z => z.GetActiveDataContext(It.IsAny<ViewportOptions>()))
                 .Returns(() => new ICanDeactivateMock(parameters.CanDeactivate));
         }
 
@@ -229,7 +229,7 @@ namespace Rogero.WpfNavigation.UnitTests
                 .Setup(z => z.Init(It.IsAny<decimal>()))
                 .Returns(() => Task.CompletedTask);
 
-            var routeRequest = new RouteRequest("", (decimal)25, "TargetViewport", new ClaimsPrincipal());
+            var routeRequest = new RouteRequest("", (decimal)25,ViewportOptions.MainViewport(), new ClaimsPrincipal());
 
             var parameters = new TestParameters(canDeactivate: true, isAuthorized: true,
                                                 newViewModel: _viewModelInit1ParamsReturnsTask,
@@ -250,7 +250,7 @@ namespace Rogero.WpfNavigation.UnitTests
                 .Setup(z => z.LoadView(It.IsAny<object>()))
                 .Verifiable();
 
-            var routeRequest = new RouteRequest("", (decimal)25, "TargetViewport", new ClaimsPrincipal());
+            var routeRequest = new RouteRequest("", (decimal)25, ViewportOptions.MainViewport(), new ClaimsPrincipal());
 
             var parameters = new TestParameters(canDeactivate: true, isAuthorized: true,
                                                 newViewModel: _viewAwareViewModel,
@@ -277,7 +277,7 @@ namespace Rogero.WpfNavigation.UnitTests
                 CanDeactivate = canDeactivate;
                 IsAuthorized = isAuthorized;
                 NewViewModel = newViewModel;
-                RouteRequest = routeRequest ?? new RouteRequest("uri", null, "TargetViewport", new ClaimsPrincipal());
+                RouteRequest = routeRequest ?? new RouteRequest("uri", null, ViewportOptions.MainViewport(), new ClaimsPrincipal());
             }
         }
     }

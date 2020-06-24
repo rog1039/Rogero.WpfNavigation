@@ -19,6 +19,12 @@ namespace Rogero.WpfNavigation
     {
         public string Name { get; set; }
 
+        public StandardViewportOptions() { }
+        public StandardViewportOptions(string name)
+        {
+            Name = name;
+        }
+
         public override string ToString()
         {
             return $"StandardViewportOptions: Name={Name}";
