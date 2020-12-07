@@ -44,8 +44,13 @@
       <HintPath>..\packages\Optional.4.0.0\lib\net45\Optional.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Rogero.ReactiveProperty, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Rogero.ReactiveProperty.1.0.17\lib\portable45-net45+win8+wpa81\Rogero.ReactiveProperty.dll</HintPath>
+    <Reference Include="ReactiveProperty, Version=7.5.1.0, Culture=neutral, PublicKeyToken=910d1732782c71cb">
+      <HintPath>..\packages\ReactiveProperty.7.5.1\lib\netstandard2.0\ReactiveProperty.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="ReactiveProperty.Core, Version=7.5.1.0, Culture=neutral, PublicKeyToken=910d1732782c71cb">
+      <HintPath>..\packages\ReactiveProperty.Core.7.5.1\lib\netstandard2.0\ReactiveProperty.Core.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="Serilog, Version=2.0.0.0, Culture=neutral, PublicKeyToken=24c2f752a8e58a10">
       <HintPath>..\packages\Serilog.2.10.0\lib\net46\Serilog.dll</HintPath>
@@ -70,6 +75,11 @@
       <HintPath>..\packages\Serilog.Sinks.Seq.4.0.0\lib\net45\Serilog.Sinks.Seq.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.ComponentModel.Annotations, Version=4.2.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+      <HintPath>..\packages\System.ComponentModel.Annotations.4.7.0\lib\net461\System.ComponentModel.Annotations.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Data" />
     <Reference Include="System.Reactive, Version=5.0.0.0, Culture=neutral, PublicKeyToken=94bc3704cddfc263">
       <HintPath>..\packages\System.Reactive.5.0.0\lib\net472\System.Reactive.dll</HintPath>
