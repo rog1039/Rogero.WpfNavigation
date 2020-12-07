@@ -4,8 +4,11 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using System.Windows;
-using Rogero.Options;
+using Optional;
+using Optional.Collections;
+using Optional.Linq;
 using Rogero.WpfNavigation.EnumerableTrees;
+using Rogero.WpfNavigation.ExtensionMethods;
 using Rogero.WpfNavigation.ViewportAdapters;
 using Serilog;
 
@@ -118,7 +121,7 @@ namespace Rogero.WpfNavigation
                     var windowSize      = newWindowViewportOptions.DesiredWindowSize;
                     var window          = new Window() {Width = windowSize.Width, Height = windowSize.Height};
                     var viewportAdapter = new WindowViewportAdapter(window);
-                    return viewportAdapter;
+                    return viewportAdapter.Some<IControlViewportAdapter>();
                     break;
                 case StandardViewportOptions standardViewportOptions:
                     return GetExistingStandardViewportAdapter(standardViewportOptions);
@@ -131,7 +134,7 @@ namespace Rogero.WpfNavigation
 
         public Option<IControlViewportAdapter> GetExistingStandardViewportAdapter(StandardViewportOptions standardViewportOptions)
         {
-            return _viewportAdapters.TryGetValue(standardViewportOptions.Name);
+            return _viewportAdapters.GetValueOrNone(standardViewportOptions.Name);
         }
 
         public Option<UIElement> GetActiveControl(ViewportOptions viewportOptions)
@@ -139,10 +142,10 @@ namespace Rogero.WpfNavigation
             switch (viewportOptions)
             {
                 case NewWindowViewportOptions newWindowViewportOptions:
-                    return Option<UIElement>.None;
+                    return Option.None<UIElement>();
                 case StandardViewportOptions standardViewportOptions:
-                    var viewportAdapter = GetExistingStandardViewportAdapter(standardViewportOptions);
-                    return viewportAdapter.Value?.ViewportUIElement;
+                    var viewportAdapterOption = GetExistingStandardViewportAdapter(standardViewportOptions);
+                    return viewportAdapterOption.Select(z => z.ViewportUIElement);
                 default:
                     throw new ArgumentOutOfRangeException(nameof(viewportOptions));
             }
@@ -161,10 +164,10 @@ namespace Rogero.WpfNavigation
             switch (viewportOptions)
             {
                 case NewWindowViewportOptions newWindowViewportOptions:
-                    return Option<object>.None;
+                    return Option.None<object>();
                 case StandardViewportOptions standardViewportOptions:
-                    var viewportAdapter = GetExistingStandardViewportAdapter(standardViewportOptions);
-                    return viewportAdapter.Value?.ActiveDataContext;
+                    var viewportAdapterOption = GetExistingStandardViewportAdapter(standardViewportOptions);
+                    return viewportAdapterOption.FlatMap(z => z.ActiveDataContext);
                 default:
                     throw new ArgumentOutOfRangeException(nameof(viewportOptions));
             }
@@ -174,18 +177,22 @@ namespace Rogero.WpfNavigation
         {
             try
             {
-                var viewportMaybe = GetExistingStandardViewportAdapter(viewportOptions);
-                switch (viewportMaybe.Value)
+                var viewportOption = GetExistingStandardViewportAdapter(viewportOptions);
+                viewportOption.MatchSome(viewport =>
                 {
-                    case null:
-                        throw new InvalidOperationException($"No viewport could be found with name {viewportOptions}");
-                        break;
-                    case {} viewportAdapter:
-                        var associatedUI = viewportAdapter.ViewportUIElement;
-                        var parentWindow = associatedUI.FindParentWindow();
-                        parentWindow.DoIfValue(window => window.Title = windowTitle);
-                        return;
-                }
+                    switch (viewport)
+                    {
+                        case null:
+                            throw new InvalidOperationException(
+                                $"No viewport could be found with name {viewportOptions}");
+                        case { } viewportAdapter:
+                            var associatedUI = viewportAdapter.ViewportUIElement;
+                            var parentWindow = associatedUI.FindParentWindow();
+                            parentWindow.MatchSome(window => window.Title = windowTitle);
+                            break;
+                    }
+                });
+
             }
             catch (Exception e)
             {

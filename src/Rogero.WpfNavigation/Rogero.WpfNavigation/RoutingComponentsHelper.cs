@@ -49,19 +49,22 @@ namespace Rogero.WpfNavigation
         private static void RegisterViewportWithService(RouterService service, FrameworkElement control)
         {
             var viewportName = RoutingComponent.GetViewportName(control);
-            var viewportAdapter = ControlViewportAdapterFactory.GetControlViewportAdapter(control);
-            if (viewportAdapter.HasValue)
-            {
-                RoutingComponentsHelperLogHelper.LogRegisteringViewportMessage(service, control, viewportName);
+            var viewportAdapterOption = ControlViewportAdapterFactory.GetControlViewportAdapter(control);
 
-                service.RegisterViewport(viewportName, viewportAdapter.Value);
+            viewportAdapterOption.Match(
+                some: viewportAdapter =>
+                {
+                    RoutingComponentsHelperLogHelper.LogRegisteringViewportMessage(service, control, viewportName);
 
-                RoutingComponentsHelperLogHelper.LogViewportRegisteredMessage(service, control, viewportName);
-            }
-            else
-            {
-                RoutingComponentsHelperLogHelper.LogViewportAdapterNotFoundMessage(service, control);
-            }
+                    service.RegisterViewport(viewportName, viewportAdapter);
+
+                    RoutingComponentsHelperLogHelper.LogViewportRegisteredMessage(service, control, viewportName);
+
+                },
+                none: () =>
+                {
+                    RoutingComponentsHelperLogHelper.LogViewportAdapterNotFoundMessage(service, control);
+                });
         }
     }
 

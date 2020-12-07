@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Windows;
-using Rogero.Options;
+using Optional;
 using Rogero.WpfNavigation.ViewportAdapters;
 using Shouldly;
 using Xunit;
@@ -15,7 +15,7 @@ namespace Rogero.WpfNavigation.UnitTests
         {
             var sut = new MockControlAdapterBase();
             var dataContext = sut.ActiveDataContext;
-            dataContext.ShouldBe(Option<object>.None);
+            dataContext.ShouldBe(Option.None<object>());
         }
     }
 
@@ -28,7 +28,7 @@ namespace Rogero.WpfNavigation.UnitTests
             throw new System.NotImplementedException();
         }
 
-        public override Option<UIElement> ActiveControl => _control;
+        public override Option<UIElement> ActiveControl => _control.SomeNotNull();
         public override IList<RouteWorkflowTask> GetActiveRouteWorkflows()
         {
             throw new System.NotImplementedException();

@@ -3,7 +3,10 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows;
-using Rogero.Options;
+using System.Windows.Ink;
+using Optional;
+using Optional.Unsafe;
+using Rogero.WpfNavigation.ExtensionMethods;
 using Serilog;
 
 namespace Rogero.WpfNavigation
@@ -15,15 +18,12 @@ namespace Rogero.WpfNavigation
             logger.Information($"Finding RouteEntry for uri: {uri}");
             var routeEntryMaybe = routeEntryRegistry.GetRouteEntry(uri);
 
-            switch (routeEntryMaybe.Value)
-            {
-                case {} routeEntry:
-                    logger.Information("Found RouteEntry, ViewType: {ViewType}", routeEntry.ViewType);
-                    return Option<IRouteEntry>.Some(routeEntry);
-                case null:
-                    logger.Warning("Did not find RouteEntry");
-                    return Option<IRouteEntry>.None;
-            }
+            routeEntryMaybe.Match(
+                routeEntry => logger.Information("Found RouteEntry, ViewType: {ViewType}", routeEntry.ViewType),
+                () => logger.Warning("Did not find RouteEntry")
+            );
+            
+            return routeEntryMaybe;
         }
 
         public static void AssignViewToViewModel(ILogger logger, UIElement view, IViewAware viewAware)
@@ -226,28 +226,42 @@ namespace Rogero.WpfNavigation
                 return true;
             }
 
-            var currentViewModel = routerService.GetActiveDataContext(viewportOptions);
+            var currentViewModelOption = routerService.GetActiveDataContext(viewportOptions);
 
-            switch (currentViewModel.Value)
-            {
-                case null:
-                    logger.Information("No current viewmodel to call CanDeactivate upon");
-                    return true;
+            return await currentViewModelOption
+                .Match(async currentViewModel =>
+                       {
+                           switch (currentViewModel)
+                           {
+                               case ICanDeactivate iCanDeactivate:
+                               {
+                                   logger.Information(
+                                       "Current viewmodel, {CurrentViewModelType} implements CanDeactivate",
+                                       iCanDeactivate.GetType().FullName);
 
-                case ICanDeactivate canDeactivate:
-                    logger.Information("Current viewmodel, {CurrentViewModelType} implements CanDeactivate",
-                                       canDeactivate.GetType().FullName);
+                                   var canDeactivateResponse =
+                                       await iCanDeactivate.CanDeactivate(uri, initData);
 
-                    var canDeactivateResponse = await canDeactivate.CanDeactivate(uri, initData);
-
-                    logger.Information("CanDeactivate returned {CanDeactivateResponse}", canDeactivateResponse);
-                    return canDeactivateResponse;
-
-                case {} _:
-                    logger.Information("Current viewmodel, {CurrentViewModelType}, does not implement CanDeactivate",
+                                   logger.Information(
+                                       "CanDeactivate returned {CanDeactivateResponse}",
+                                       canDeactivateResponse);
+                                   return canDeactivateResponse;
+                               }
+                               default:
+                               {
+                                   logger.Information(
+                                       "Current viewmodel, {CurrentViewModelType}, does not implement CanDeactivate",
                                        currentViewModel.GetType().FullName);
-                    return true;
-            }
+                                   return true;
+                               }
+                           }
+                       },
+                       async () =>
+                       {
+                           logger.Information(
+                               "No current viewmodel to call CanDeactivate upon");
+                           return true;
+                       });
         }
 
         /// <summary>
@@ -291,9 +305,9 @@ namespace Rogero.WpfNavigation
                                               UIElement         view)
         {
             var viewportOptions = routeWorkflowTask.ViewportOptions;
-            var viewportMaybe   = _routerService.GetControlViewportAdapter(viewportOptions);
+            var viewportAdapterOption   = _routerService.GetControlViewportAdapter(viewportOptions);
 
-            switch (viewportMaybe.Value)
+            switch (viewportAdapterOption.ValueOrDefault())
             {
                 case null:
                     logger.Error("No viewport found with specified viewport name, {ViewportName}",

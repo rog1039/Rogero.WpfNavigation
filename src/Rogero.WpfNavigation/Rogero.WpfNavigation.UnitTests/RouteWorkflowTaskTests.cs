@@ -5,7 +5,7 @@ using System.Windows;
 using System.Windows.Controls;
 using Moq;
 using Rogero.AutoFixture.Helpers;
-using Rogero.Options;
+using Optional;
 using Rogero.WpfNavigation.ViewportAdapters;
 using Xunit;
 using Serilog;
@@ -56,10 +56,10 @@ namespace Rogero.WpfNavigation.UnitTests
 
             _fixture.GetMock<IRouteEntryRegistry>()
                 .Setup(z => z.GetRouteEntry(It.IsAny<string>()))
-                .Returns(() => ((IRouteEntry)_routeEntryBase).ToOption());
+                .Returns(() => ((IRouteEntry)_routeEntryBase).SomeNotNull());
             _fixture.GetMock<IRouterService>()
                 .Setup(z => z.GetControlViewportAdapter(It.IsAny<ViewportOptions>()))
-                .Returns(() => _contentControlViewportAdapter);
+                .Returns(() => _contentControlViewportAdapter.Some<IControlViewportAdapter>());
 
         }
 
@@ -76,7 +76,7 @@ namespace Rogero.WpfNavigation.UnitTests
         {
             _fixture.GetMock<IRouterService>()
                 .Setup(z => z.GetActiveDataContext(It.IsAny<ViewportOptions>()))
-                .Returns(() => new ICanDeactivateMock(parameters.CanDeactivate));
+                .Returns(() => Option.Some<object>(new ICanDeactivateMock(parameters.CanDeactivate)));
         }
 
         private void ConfigureNewViewModel(TestParameters parameters)

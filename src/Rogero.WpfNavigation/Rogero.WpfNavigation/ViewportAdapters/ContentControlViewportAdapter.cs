@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
-using Rogero.Options;
+using Optional;
 
 namespace Rogero.WpfNavigation.ViewportAdapters
 {
@@ -14,7 +14,7 @@ namespace Rogero.WpfNavigation.ViewportAdapters
             return new List<RouteWorkflowTask>(){_routeWorkflowTask};
         }
         
-        public override Option<UIElement> ActiveControl => _routeWorkflowTask.View;
+        public override Option<UIElement> ActiveControl => _routeWorkflowTask.View.SomeNotNull();
     }
     public class ContentControlViewportAdapter : SingleContentViewportAdapter
     {
