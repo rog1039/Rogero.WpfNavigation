@@ -27,6 +27,7 @@ namespace Rogero.WpfNavigation.WpfTestApp
                 .WriteTo.Console().MinimumLevel.Verbose()
                 .WriteTo.Seq("http://ws2012r2seq:5341", apiKey: "RrIxpZQpfUjcqk3NzTBY")
                 .CreateLogger();
+            InternalLogger.LoggerInstance = logger;
 
             RouterService.Value = new RouterService(_registry, new AlwaysGrantAccessRouteAuthorizationManager(), logger);
 

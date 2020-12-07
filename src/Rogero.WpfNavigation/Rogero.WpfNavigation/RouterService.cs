@@ -44,7 +44,7 @@ namespace Rogero.WpfNavigation
     {
         public Guid RouterServiceId { get; } = Guid.NewGuid();
 
-        private readonly ILogger                    _logger;
+        internal readonly ILogger                    _logger;
         private readonly IRouteEntryRegistry        _routeEntryRegistry;
         private readonly IRouteAuthorizationManager _routeAuthorizationManager;
 

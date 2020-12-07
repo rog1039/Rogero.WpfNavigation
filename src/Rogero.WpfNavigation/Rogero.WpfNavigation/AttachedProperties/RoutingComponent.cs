@@ -92,7 +92,7 @@ namespace Rogero.WpfNavigation.AttachedProperties
         {
             var oldViewportName = (string)e.OldValue;
             var newViewportName = (string)d.GetValue(ViewportNameProperty);
-            Console.WriteLine($"RoutingComponent.ViewportName attached property assigned value: {newViewportName}");
+            InternalLogger.Information($"RoutingComponent.ViewportName attached property assigned value: {newViewportName}");
             RoutingComponentsHelper.HookupViewportToRouterService(d);
         }
 

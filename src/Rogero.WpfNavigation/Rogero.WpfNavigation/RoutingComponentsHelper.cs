@@ -72,8 +72,7 @@ namespace Rogero.WpfNavigation
     {
         public static void LogViewportAdapterNotFoundMessage(RouterService service, FrameworkElement control)
         {
-            InternalLogger
-                .LoggerInstance?
+            service._logger
                 .ForContext("Class", "RoutingComponentsHelper")
                 .ForContext("RouterServiceId", service.RouterServiceId)
                 .Warning(
@@ -83,8 +82,7 @@ namespace Rogero.WpfNavigation
 
         public static void LogViewportRegisteredMessage(RouterService service, FrameworkElement control, string viewportName)
         {
-            InternalLogger
-                .LoggerInstance?
+            service._logger
                 .ForContext("Class", "RoutingComponentsHelper")
                 .Information(
                     "RouterService found. Registered {ViewportName}, of type {ViewportType}, with router service {RouterServiceId}",
@@ -93,8 +91,7 @@ namespace Rogero.WpfNavigation
 
         public static void LogRegisteringViewportMessage(RouterService service, FrameworkElement control, string viewportName)
         {
-            InternalLogger
-                .LoggerInstance?
+            service._logger
                 .ForContext("Class", "RoutingComponentsHelper")
                 .Information(
                     "RouterService found. Registering {ViewportName}, of type {ViewportType}, with router service {RouterServiceId}",
@@ -103,8 +100,7 @@ namespace Rogero.WpfNavigation
 
         public static void LogRouterServiceFoundMessage(RouterService service)
         {
-            InternalLogger
-                .LoggerInstance?
+            service._logger
                 .ForContext("Class", "RoutingComponentsHelper")
                 .Debug(
                     "WalkAncestorsForRouterService.WalkAncestorsForRouterService found RouterService with router service id: {RouterServiceId}",
@@ -113,8 +109,7 @@ namespace Rogero.WpfNavigation
 
         public static void LogRouterServiceNotFoundMessage()
         {
-            InternalLogger
-                .LoggerInstance?
+            InternalLogger.LoggerInstance
                 .ForContext("Class", "RoutingComponentsHelper")
                 .Debug(
                     "WalkAncestorsForRouterService.WalkAncestorsForRouterService did not find the router service. Going to attempt again.");

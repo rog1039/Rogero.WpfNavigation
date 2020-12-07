@@ -29,7 +29,8 @@ namespace Rogero.WpfNavigation.UnitTests
 
         public RouteWorkflowTaskTests()
         {
-            _logger = new LoggerConfiguration().WriteTo.Console().CreateLogger();
+            _logger        = new LoggerConfiguration().WriteTo.Console().CreateLogger();
+            InternalLogger.LoggerInstance = _logger;
 
             _viewModelNoInit = _fixture.GetMock<IViewModelNoInit>().Object;
             _viewModelInit0ParamsReturnsVoid = _fixture.GetMock<IViewModelInit0ParamsReturnsVoid>().Object;
