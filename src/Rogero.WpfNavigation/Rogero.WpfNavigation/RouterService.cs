@@ -122,10 +122,8 @@ namespace Rogero.WpfNavigation
                     var window          = new Window() {Width = windowSize.Width, Height = windowSize.Height};
                     var viewportAdapter = new WindowViewportAdapter(window);
                     return viewportAdapter.Some<IControlViewportAdapter>();
-                    break;
                 case StandardViewportOptions standardViewportOptions:
                     return GetExistingStandardViewportAdapter(standardViewportOptions);
-                    break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(viewportOptions),
                                                           $"No code to handle {viewportOptions.GetType()} viewport options.");

@@ -14,7 +14,8 @@ namespace Rogero.WpfNavigation.ViewportAdapters
             return new List<RouteWorkflowTask>(){_routeWorkflowTask};
         }
         
-        public override Option<UIElement> ActiveControl => _routeWorkflowTask.View.SomeNotNull();
+        public override Option<UIElement> ActiveControl =>
+            _routeWorkflowTask?.View?.SomeNotNull() ?? Option.None<UIElement>();
     }
     public class ContentControlViewportAdapter : SingleContentViewportAdapter
     {

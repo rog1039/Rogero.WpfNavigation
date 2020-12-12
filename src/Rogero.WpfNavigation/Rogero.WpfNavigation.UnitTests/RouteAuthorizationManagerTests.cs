@@ -2,10 +2,9 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using AutoFixture;
+using FluentAssertions;
 using Moq;
-using Rogero.AutoFixture.Helpers;
 using Rogero.WpfNavigation.UnitTests.Extensions;
-using Shouldly;
 using Xunit;
 
 namespace Rogero.WpfNavigation.UnitTests
@@ -43,7 +42,7 @@ namespace Rogero.WpfNavigation.UnitTests
             var manager = new RouteAuthorizationManager(_alwaysGrantAuthorizer.MakeList());
             var result = await manager.CheckAuthorization(_fixture.Create<RoutingContext>());
             Console.WriteLine(result.RouteAuthorizationStatus);
-            result.ShouldBe(RouteAuthorizationResult.Granted);
+            result.Should().Be(RouteAuthorizationResult.Granted);
         }
 
         [Fact()]
@@ -52,7 +51,7 @@ namespace Rogero.WpfNavigation.UnitTests
             var manager = new RouteAuthorizationManager(_alwaysDenyAuthorizer.MakeList());
             var result = await manager.CheckAuthorization(_fixture.Create<RoutingContext>());
             Console.WriteLine(result.RouteAuthorizationStatus);
-            result.ShouldBe(RouteAuthorizationResult.Denied);
+            result.Should().Be(RouteAuthorizationResult.Denied);
         }
 
         [Fact()]
@@ -61,7 +60,7 @@ namespace Rogero.WpfNavigation.UnitTests
             var manager = new RouteAuthorizationManager(_alwaysNotDeterminedAuthorizer.MakeList());
             var result = await manager.CheckAuthorization(_fixture.Create<RoutingContext>());
             Console.WriteLine(result.RouteAuthorizationStatus);
-            result.ShouldBe(RouteAuthorizationResult.Denied);
+            result.Should().Be(RouteAuthorizationResult.Denied);
         }
 
         [Fact()]
@@ -71,7 +70,7 @@ namespace Rogero.WpfNavigation.UnitTests
             var manager = new RouteAuthorizationManager(authorizers);
             var result = await manager.CheckAuthorization(_fixture.Create<RoutingContext>());
             Console.WriteLine(result.RouteAuthorizationStatus);
-            result.ShouldBe(RouteAuthorizationResult.Denied);
+            result.Should().Be(RouteAuthorizationResult.Denied);
         }
     }
 }

@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Windows;
+using FluentAssertions;
 using Optional;
 using Rogero.WpfNavigation.ViewportAdapters;
-using Shouldly;
 using Xunit;
 
 namespace Rogero.WpfNavigation.UnitTests
@@ -15,13 +15,13 @@ namespace Rogero.WpfNavigation.UnitTests
         {
             var sut = new MockControlAdapterBase();
             var dataContext = sut.ActiveDataContext;
-            dataContext.ShouldBe(Option.None<object>());
+            dataContext.Should().Be(Option.None<object>());
         }
     }
 
     public class MockControlAdapterBase : ControlViewportAdapterBase
     {
-        private UIElement _control;
+        private readonly UIElement _control = null;
 
         public override void AddControl(UIElement control, RouteWorkflowTask routeWorkflowTask)
         {

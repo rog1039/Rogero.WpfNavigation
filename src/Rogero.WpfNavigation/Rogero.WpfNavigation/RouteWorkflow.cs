@@ -278,8 +278,8 @@ namespace Rogero.WpfNavigation
                 case NewWindowViewportOptions newWindowViewportOptions:
                     return false;
                 case StandardViewportOptions standardViewportOptions:
-                    var controlViewportAdapter = routerService.GetExistingStandardViewportAdapter(standardViewportOptions);
-                    return controlViewportAdapter != null;
+                    var controlViewportAdapterOption = routerService.GetExistingStandardViewportAdapter(standardViewportOptions);
+                    return controlViewportAdapterOption.HasValue;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(viewportOptions));
             }
