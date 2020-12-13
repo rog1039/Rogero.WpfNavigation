@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Threading.Tasks;
 using System.Windows;
-using Rogero.Options;
+using Optional;
+using Optional.Linq;
+using Optional.Unsafe;
+using Rogero.WpfNavigation.ExtensionMethods;
 using Serilog;
 
 namespace Rogero.WpfNavigation
@@ -15,7 +18,8 @@ namespace Rogero.WpfNavigation
             IRouterService             routerService,
             ILogger                    logger)
         {
-            var workflow = new RouteWorkflowTask(routeRequest, routeEntryRegistry, routeAuthorizationManager, routerService,
+            var workflow = new RouteWorkflowTask(routeRequest, routeEntryRegistry, routeAuthorizationManager,
+                                                 routerService,
                                                  logger);
             workflow.RouteResult = workflow.GoAsync();
             return workflow;
@@ -25,12 +29,12 @@ namespace Rogero.WpfNavigation
         public object          InitData        => _routeRequest.InitData;
         public ViewportOptions ViewportOptions => _routeRequest.ViewportOptions;
         public Guid            RouteRequestId  => _routeRequest.RouteRequestId;
-        public Option<string>  RouteName       => RouteEntry.Value?.Name.ToOption();
+        public Option<string>  RouteName       => RouteEntryOption.Select(routeEntry => routeEntry.Name);
 
         public Guid                RoutingWorkflowId { get; } = Guid.NewGuid();
         public DateTime            StartedTime       { get; } = DateTime.UtcNow;
         public DateTime            FinishedTime      { get; private set; }
-        public Option<IRouteEntry> RouteEntry        { get; private set; }
+        public Option<IRouteEntry> RouteEntryOption  { get; private set; }
         public Task<RouteResult>   RouteResult       { get; private set; }
 
         public object    Controller { get; private set; }
@@ -67,44 +71,53 @@ namespace Rogero.WpfNavigation
         internal async Task<RouteResult> GoAsync()
         {
             var initDataIsNull = InitData != null ? "with init data" : "without init data";
-            using (Logging.Timing(_logger, $"navigation workflow URI: [{Uri}], in viewport [{ViewportOptions}] " + initDataIsNull)
+            using (Logging.Timing(
+                _logger, $"navigation workflow URI: [{Uri}], in viewport [{ViewportOptions}] " + initDataIsNull)
             )
             {
                 try
                 {
-                    RouteEntry = RouteWorkflow.GetRouteEntry(_logger, _routeEntryRegistry, Uri);
-                    if (RouteEntry.HasNoValue) return new RouteResult(RouteResultStatusCode.RouteNotFound);
+                    RouteEntryOption = RouteWorkflow.GetRouteEntry(_logger, _routeEntryRegistry, Uri);
 
-                    //Check authorization
-                    var routeContext = new RoutingContext(RouteEntry.Value, _routeRequest);
-                    var authorized =
-                        await RouteWorkflow.CheckRouteAuthorizationAsync(_logger, _routeAuthorizationManager, routeContext);
-                    if (!authorized) return new RouteResult(RouteResultStatusCode.Unauthorized);
+                    var routeResult = await RouteEntryOption.Match(
+                        some: async routeEntry =>
+                        {
+                            //Check authorization
+                            var routeContext = new RoutingContext(routeEntry, _routeRequest);
+                            var authorized =
+                                await RouteWorkflow.CheckRouteAuthorizationAsync(
+                                    _logger, _routeAuthorizationManager, routeContext);
+                            if (!authorized) return new RouteResult(RouteResultStatusCode.Unauthorized);
 
-                    //Can deactivate current
-                    var canDeactivate =
-                        await RouteWorkflow.CanDeactivateCurrentRouteAsync(_logger, _routerService, ViewportOptions, Uri,
-                                                                           InitData);
-                    if (!canDeactivate) return new RouteResult(RouteResultStatusCode.CanDeactiveFailed);
+                            //Can deactivate current
+                            var canDeactivate =
+                                await RouteWorkflow.CanDeactivateCurrentRouteAsync(
+                                    _logger, _routerService, ViewportOptions, Uri,
+                                    InitData);
+                            if (!canDeactivate) return new RouteResult(RouteResultStatusCode.CanDeactiveFailed);
 
-                    //Activate new route
-                    var canActivate = await RouteWorkflow.CanActivateNewRouteAsync(_logger);
-                    if (!canActivate) return new RouteResult(RouteResultStatusCode.CanActivateFailed);
+                            //Activate new route
+                            var canActivate = await RouteWorkflow.CanActivateNewRouteAsync(_logger);
+                            if (!canActivate) return new RouteResult(RouteResultStatusCode.CanActivateFailed);
 
-                    //Get ViewModel
-                    Controller = RouteWorkflow.CreateViewModel(_logger, RouteEntry.Value);
-                    await RouteWorkflow.InitViewModel(_logger, InitData, Controller);
-                    //Get View
-                    View = RouteWorkflow.CreateView(_logger, RouteEntry.Value);
-                    RouteWorkflow.AssignDataContext(_logger, View, Controller);
+                            //Get ViewModel
+                            Controller = RouteWorkflow.CreateViewModel(_logger, routeEntry);
+                            await RouteWorkflow.InitViewModel(_logger, InitData, Controller);
+                            //Get View
+                            View = RouteWorkflow.CreateView(_logger, routeEntry);
+                            RouteWorkflow.AssignDataContext(_logger, View, Controller);
 
-                    //IViewAware context
-                    if (Controller is IViewAware viewAware) RouteWorkflow.AssignViewToViewModel(_logger, View, viewAware);
+                            //IViewAware context
+                            if (Controller is IViewAware viewAware)
+                                RouteWorkflow.AssignViewToViewModel(_logger, View, viewAware);
 
-                    //Add View to UI
-                    var routeResult = RouteWorkflow.AddViewToUi(_logger, _routerService, this, View);
+                            //Add View to UI
+                            return RouteWorkflow.AddViewToUi(_logger, _routerService, this, View);
+                        },
+                        none: async () => new RouteResult(RouteResultStatusCode.RouteNotFound));
 
                     FinishedTime = DateTime.UtcNow;
+
                     return routeResult;
                 }
                 catch (Exception e)

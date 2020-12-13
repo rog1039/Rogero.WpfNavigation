@@ -3,14 +3,13 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using FluentAssertions;
 using Moq;
-using Rogero.AutoFixture.Helpers;
-using Rogero.Options;
+using Optional;
 using Rogero.WpfNavigation.ViewportAdapters;
 using Xunit;
 using Serilog;
 using Serilog.Core;
-using Shouldly;
 
 namespace Rogero.WpfNavigation.UnitTests
 {
@@ -20,7 +19,6 @@ namespace Rogero.WpfNavigation.UnitTests
         private IRouteEntry _routeEntryBase;
         private ContentControl _contentControl;
         private ContentControlViewportAdapter _contentControlViewportAdapter;
-        private RouteRequest _routeRequest;
         private IViewModelNoInit _viewModelNoInit;
         private IViewModelInit0ParamsReturnsVoid _viewModelInit0ParamsReturnsVoid;
         private IViewModelInit0ParamsReturnsTask _viewModelInit0ParamsReturnsTask;
@@ -29,7 +27,8 @@ namespace Rogero.WpfNavigation.UnitTests
 
         public RouteWorkflowTaskTests()
         {
-            _logger = new LoggerConfiguration().WriteTo.Console().CreateLogger();
+            _logger        = new LoggerConfiguration().WriteTo.Console().CreateLogger();
+            InternalLogger.LoggerInstance = _logger;
 
             _viewModelNoInit = _fixture.GetMock<IViewModelNoInit>().Object;
             _viewModelInit0ParamsReturnsVoid = _fixture.GetMock<IViewModelInit0ParamsReturnsVoid>().Object;
@@ -56,10 +55,10 @@ namespace Rogero.WpfNavigation.UnitTests
 
             _fixture.GetMock<IRouteEntryRegistry>()
                 .Setup(z => z.GetRouteEntry(It.IsAny<string>()))
-                .Returns(() => ((IRouteEntry)_routeEntryBase).ToOption());
+                .Returns(() => ((IRouteEntry)_routeEntryBase).SomeNotNull());
             _fixture.GetMock<IRouterService>()
                 .Setup(z => z.GetControlViewportAdapter(It.IsAny<ViewportOptions>()))
-                .Returns(() => _contentControlViewportAdapter);
+                .Returns(() => _contentControlViewportAdapter.Some<IControlViewportAdapter>());
 
         }
 
@@ -76,7 +75,7 @@ namespace Rogero.WpfNavigation.UnitTests
         {
             _fixture.GetMock<IRouterService>()
                 .Setup(z => z.GetActiveDataContext(It.IsAny<ViewportOptions>()))
-                .Returns(() => new ICanDeactivateMock(parameters.CanDeactivate));
+                .Returns(() => Option.Some<object>(new ICanDeactivateMock(parameters.CanDeactivate)));
         }
 
         private void ConfigureNewViewModel(TestParameters parameters)
@@ -163,8 +162,8 @@ namespace Rogero.WpfNavigation.UnitTests
         {
             var parameters = new TestParameters(canDeactivate: true, isAuthorized: true, newViewModel: _viewModelNoInit);
             var routeResult = await RunTest(parameters);
-            routeResult.Success.ShouldBe(true);
-            routeResult.StatusCode.ShouldBe(RouteResultStatusCode.OK);
+            routeResult.Success.Should().Be(true);
+            routeResult.StatusCode.Should().Be(RouteResultStatusCode.OK);
         }
 
         [WpfFact()]
@@ -173,8 +172,8 @@ namespace Rogero.WpfNavigation.UnitTests
         {
             var parameters = new TestParameters(canDeactivate: true, isAuthorized: false, newViewModel: _viewModelNoInit);
             var routeResult = await RunTest(parameters);
-            routeResult.Success.ShouldBe(false);
-            routeResult.StatusCode.ShouldBe(RouteResultStatusCode.Unauthorized);
+            routeResult.Success.Should().Be(false);
+            routeResult.StatusCode.Should().Be(RouteResultStatusCode.Unauthorized);
         }
 
         [WpfFact()]
@@ -183,8 +182,8 @@ namespace Rogero.WpfNavigation.UnitTests
         {
             var parameters = new TestParameters(canDeactivate: false, isAuthorized: true, newViewModel: _viewModelNoInit);
             var routeResult = await RunTest(parameters);
-            routeResult.Success.ShouldBe(false);
-            routeResult.StatusCode.ShouldBe(RouteResultStatusCode.CanDeactiveFailed);
+            routeResult.Success.Should().Be(false);
+            routeResult.StatusCode.Should().Be(RouteResultStatusCode.CanDeactiveFailed);
         }
         
         [WpfFact()]
@@ -197,8 +196,8 @@ namespace Rogero.WpfNavigation.UnitTests
 
             var parameters = new TestParameters(canDeactivate: true, isAuthorized: true, newViewModel: _viewModelInit0ParamsReturnsVoid);
             var routeResult = await RunTest(parameters);
-            routeResult.Success.ShouldBe(true);
-            routeResult.StatusCode.ShouldBe(RouteResultStatusCode.OK);
+            routeResult.Success.Should().Be(true);
+            routeResult.StatusCode.Should().Be(RouteResultStatusCode.OK);
 
             _fixture.GetMock<IViewModelInit0ParamsReturnsVoid>()
                 .Verify();
@@ -214,8 +213,8 @@ namespace Rogero.WpfNavigation.UnitTests
 
             var parameters = new TestParameters(canDeactivate: true, isAuthorized: true, newViewModel: _viewModelInit0ParamsReturnsTask);
             var routeResult = await RunTest(parameters);
-            routeResult.Success.ShouldBe(true);
-            routeResult.StatusCode.ShouldBe(RouteResultStatusCode.OK);
+            routeResult.Success.Should().Be(true);
+            routeResult.StatusCode.Should().Be(RouteResultStatusCode.OK);
 
             _fixture.GetMock<IViewModelInit0ParamsReturnsTask>()
                 .Verify();
@@ -235,8 +234,8 @@ namespace Rogero.WpfNavigation.UnitTests
                                                 newViewModel: _viewModelInit1ParamsReturnsTask,
                                                 routeRequest: routeRequest);
             var routeResult = await RunTest(parameters);
-            routeResult.Success.ShouldBe(true);
-            routeResult.StatusCode.ShouldBe(RouteResultStatusCode.OK);
+            routeResult.Success.Should().Be(true);
+            routeResult.StatusCode.Should().Be(RouteResultStatusCode.OK);
 
             _fixture.GetMock<IViewModelInit1ParamsReturnsTask>()
                 .Verify();
@@ -256,8 +255,8 @@ namespace Rogero.WpfNavigation.UnitTests
                                                 newViewModel: _viewAwareViewModel,
                                                 routeRequest: routeRequest);
             var routeResult = await RunTest(parameters);
-            routeResult.Success.ShouldBe(true);
-            routeResult.StatusCode.ShouldBe(RouteResultStatusCode.OK);
+            routeResult.Success.Should().Be(true);
+            routeResult.StatusCode.Should().Be(RouteResultStatusCode.OK);
 
             _fixture.GetMock<IViewAwareVm>()
                 .Verify();

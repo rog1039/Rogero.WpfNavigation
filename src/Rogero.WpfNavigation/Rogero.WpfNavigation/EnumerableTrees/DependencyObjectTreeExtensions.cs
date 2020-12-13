@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
-using Rogero.Options;
+using Optional;
 using Rogero.WpfNavigation.ExtensionMethods;
 
 
@@ -71,8 +71,8 @@ namespace Rogero.WpfNavigation.EnumerableTrees
         public static Option<Window> FindParentWindow(this DependencyObject item)
         {
             var logicalTreeAncestors = item.LogicalTreeAncestors();
-            var window = logicalTreeAncestors.FirstOrDefault(z => z.GetType().IsSameAsOrSubclassOf(typeof(Window)));
-            return (Option<Window>) window;
+            var window = (Window)logicalTreeAncestors.FirstOrDefault(z => z.GetType().IsSameAsOrSubclassOf(typeof(Window)));
+            return window.Some();
         }
 
         /// <summary>

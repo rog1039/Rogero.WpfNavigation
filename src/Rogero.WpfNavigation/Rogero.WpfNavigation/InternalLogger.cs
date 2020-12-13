@@ -4,7 +4,7 @@ namespace Rogero.WpfNavigation
 {
     public static class InternalLogger
     {
-        public static ILogger LoggerInstance { get; set; } = new LoggerConfiguration().WriteTo.Console().CreateLogger();
+        public static ILogger LoggerInstance { get; set; }
 
         public static void Information(string messageTemplate)
         {

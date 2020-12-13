@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Windows;
-using Rogero.ReactiveProperty;
+using Reactive.Bindings;
 using Serilog;
 using Serilog.Core.Enrichers;
 
@@ -9,7 +9,7 @@ namespace Rogero.WpfNavigation.WpfTestApp
     public class RoutingTestWindowViewModel
     {
         public ReactiveProperty<RouterService> RouterService { get; } = new ReactiveProperty<RouterService>();
-        public ReactiveProperty<string> SomeText { get; } = new ReactiveProperty<string>("blah blah face");
+        public ReactiveProperty<string>        SomeText      { get; } = new ReactiveProperty<string>("blah blah face");
 
         public DelegateCommand OpenControl1CommandMain { get; set; }
         public DelegateCommand OpenControl2CommandMain { get; set; }
@@ -27,6 +27,7 @@ namespace Rogero.WpfNavigation.WpfTestApp
                 .WriteTo.Console().MinimumLevel.Verbose()
                 .WriteTo.Seq("http://ws2012r2seq:5341", apiKey: "RrIxpZQpfUjcqk3NzTBY")
                 .CreateLogger();
+            InternalLogger.LoggerInstance = logger;
 
             RouterService.Value = new RouterService(_registry, new AlwaysGrantAccessRouteAuthorizationManager(), logger);
 

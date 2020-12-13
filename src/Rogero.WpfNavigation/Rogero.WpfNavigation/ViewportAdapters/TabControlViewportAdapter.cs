@@ -4,7 +4,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
-using Rogero.Options;
+using Optional;
 
 namespace Rogero.WpfNavigation.ViewportAdapters
 {
@@ -37,8 +37,8 @@ namespace Rogero.WpfNavigation.ViewportAdapters
             get
             {
                 var selectedItem = _tabControl.SelectedItem;
-                if (selectedItem is null) return Option<UIElement>.None;
-                if (selectedItem is UIElement uiElement) return uiElement;
+                if (selectedItem is null) return Option.None<UIElement>();
+                if (selectedItem is UIElement uiElement) return uiElement.SomeNotNull();
                 throw new InvalidOperationException("Never expected GetActiveControl to return an item outside the UIElement hierarchy.");
             }
         }

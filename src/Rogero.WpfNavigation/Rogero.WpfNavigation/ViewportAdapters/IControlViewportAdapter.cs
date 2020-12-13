@@ -1,6 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Windows;
-using Rogero.Options;
+using Optional;
+using Optional.Linq;
+using Optional.Unsafe;
+using Rogero.WpfNavigation.ExtensionMethods;
 
 namespace Rogero.WpfNavigation.ViewportAdapters
 {
@@ -22,9 +25,9 @@ namespace Rogero.WpfNavigation.ViewportAdapters
         {
             get
             {
-                if (ActiveControl?.Value is FrameworkElement frameworkElement) return frameworkElement.DataContext;
-
-                return Option<object>.None;
+                return ActiveControl
+                    .Cast<UIElement,FrameworkElement>()
+                    .Map(frameworkElement => frameworkElement.DataContext);
             }
         }
 

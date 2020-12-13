@@ -3,7 +3,8 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
-using Rogero.Options;
+using Optional;
+using Optional.Collections;
 
 namespace Rogero.WpfNavigation
 {
@@ -37,7 +38,7 @@ namespace Rogero.WpfNavigation
             
         }
 
-        public Option<IRouteEntry> GetRouteEntry(string uri) => _routeEntries.TryGetValue(uri);
+        public Option<IRouteEntry> GetRouteEntry(string uri) => _routeEntries.GetValueOrNone(uri);
 
         public IList<IRouteEntry> GetRouteEntries()
         {
