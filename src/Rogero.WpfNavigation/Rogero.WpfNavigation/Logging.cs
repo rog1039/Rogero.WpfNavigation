@@ -37,7 +37,7 @@ namespace Rogero.WpfNavigation
                 var elapsed = end - Start;
                 var logMessage = $"Finished {Description} in {elapsed:c}.";
 
-                Logger.ForContext("Elapsed", elapsed)
+                Logger.ForContext("Elapsed", elapsed.Milliseconds)
                     .Information(logMessage + " at {EndTime}", end);
             }
         }
