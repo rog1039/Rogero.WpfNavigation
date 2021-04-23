@@ -6,7 +6,6 @@
         <UseWPF>true</UseWPF>
         <Nulklable>enable</Nulklable>
         <RootNamespace>Rogero.WpfNavigation</RootNamespace>
-        <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     </PropertyGroup>
 
     <ItemGroup>

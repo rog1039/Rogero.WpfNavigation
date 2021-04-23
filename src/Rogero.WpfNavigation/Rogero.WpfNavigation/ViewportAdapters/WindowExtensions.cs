@@ -50,11 +50,13 @@ namespace Rogero.WpfNavigation.ViewportAdapters
         public static PreviousWindowActiveState GetWindowState(this Window window)
         {
             var wasMinimized      = window.WindowState == WindowState.Minimized;
+            if (wasMinimized) return PreviousWindowActiveState.WasMinimized;
+            
             var wasWindowInactive = !window.IsActive;
 
-            if (wasMinimized) return PreviousWindowActiveState.WasMinimized;
-            if (wasWindowInactive) return PreviousWindowActiveState.WasInactive;
-            return PreviousWindowActiveState.WasActive;
+            return wasWindowInactive 
+                ? PreviousWindowActiveState.WasInactive
+                : PreviousWindowActiveState.WasActive;
         }
     }
 }
