@@ -19,7 +19,9 @@ namespace Rogero.WpfNavigation
         Guid RouterServiceId { get; }
 
         Task<RouteResult> RouteAsync(RouteRequest routeRequest);
-        Task<RouteResult> RouteAsync(string       uri, object initData, ViewportOptions viewportOptions, ClaimsPrincipal principal);
+
+        Task<RouteResult> RouteAsync(string          uri, object initData, ViewportOptions viewportOptions,
+                                     ClaimsPrincipal principal);
 
         void                           ActivateExistingRouteWorkflow(RouteWorkflowTask routeWorkflowTask);
         IEnumerable<RouteWorkflowTask> GetExistingRouteWorkflowTasks();
@@ -36,8 +38,10 @@ namespace Rogero.WpfNavigation
         void ChangeWindowTitle(StandardViewportOptions viewportOptions,
                                string                  windowTitle);
 
-        void                            CloseScreen(string                                         url);
-        Option<IControlViewportAdapter> GetExistingStandardViewportAdapter(StandardViewportOptions standardViewportOptions);
+        void CloseScreen(string url);
+
+        Option<IControlViewportAdapter> GetExistingStandardViewportAdapter(
+            StandardViewportOptions standardViewportOptions);
     }
 
     public class RouterService : IRouterService
@@ -45,8 +49,8 @@ namespace Rogero.WpfNavigation
         public Guid RouterServiceId { get; } = Guid.NewGuid();
 
         internal readonly ILogger                    _logger;
-        private readonly IRouteEntryRegistry        _routeEntryRegistry;
-        private readonly IRouteAuthorizationManager _routeAuthorizationManager;
+        private readonly  IRouteEntryRegistry        _routeEntryRegistry;
+        private readonly  IRouteAuthorizationManager _routeAuthorizationManager;
 
         private readonly IDictionary<string, IControlViewportAdapter> _viewportAdapters =
             new Dictionary<string, IControlViewportAdapter>();
@@ -80,7 +84,8 @@ namespace Rogero.WpfNavigation
                 viewportName, viewportAdapter.GetType().FullName);
         }
 
-        public async Task<RouteResult> RouteAsync(string uri, object initData, ViewportOptions viewportOptions, ClaimsPrincipal principal)
+        public async Task<RouteResult> RouteAsync(string          uri, object initData, ViewportOptions viewportOptions,
+                                                  ClaimsPrincipal principal)
         {
             var routeRequest = new RouteRequest(uri, initData, viewportOptions, principal);
             return await RouteAsync(routeRequest);
@@ -130,7 +135,8 @@ namespace Rogero.WpfNavigation
             }
         }
 
-        public Option<IControlViewportAdapter> GetExistingStandardViewportAdapter(StandardViewportOptions standardViewportOptions)
+        public Option<IControlViewportAdapter> GetExistingStandardViewportAdapter(
+            StandardViewportOptions standardViewportOptions)
         {
             return _viewportAdapters.GetValueOrNone(standardViewportOptions.Name);
         }
@@ -190,7 +196,6 @@ namespace Rogero.WpfNavigation
                             break;
                     }
                 });
-
             }
             catch (Exception e)
             {
