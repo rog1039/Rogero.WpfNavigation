@@ -45,6 +45,17 @@ namespace Rogero.WpfNavigation
             return _routeEntries.Values.ToList();
         }
 
-        public void RegisterRouteEntry(IRouteEntry routeEntry) => _routeEntries.Add(routeEntry.Uri, routeEntry);
+        public void RegisterRouteEntry(IRouteEntry routeEntry)
+        {
+            try
+            {
+                _routeEntries.Add(routeEntry.Uri, routeEntry);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
+        }
     }
 }
