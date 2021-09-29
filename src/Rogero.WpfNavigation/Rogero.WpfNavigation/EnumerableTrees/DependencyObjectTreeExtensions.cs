@@ -149,9 +149,9 @@ namespace Rogero.WpfNavigation.EnumerableTrees
         /// <summary>
         /// Returns a collection of descendant elements which match the given type.
         /// </summary>
-        public static IEnumerable<DependencyObject> Descendants<T>(this DependencyObject item)
+        public static IEnumerable<T> Descendants<T>(this DependencyObject item)
         {
-            return item.Descendants().Where(i => i is T).Cast<DependencyObject>();
+            return item.Descendants().Where(i => i is T).Cast<T>();
         }
 
 
