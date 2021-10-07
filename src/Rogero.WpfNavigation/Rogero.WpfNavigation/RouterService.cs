@@ -64,7 +64,6 @@ namespace Rogero.WpfNavigation
             _routeAuthorizationManager    = routeAuthorizationManager;
             InternalLogger.LoggerInstance = logger;
             _logger = logger
-                .ForContext("Class",           "RouterService")
                 .ForContext("RouterServiceId", RouterServiceId);
             _logger.Information("RouterService created with Id: {RouterServiceId}", RouterServiceId);
         }

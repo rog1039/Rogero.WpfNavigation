@@ -73,7 +73,7 @@ namespace Rogero.WpfNavigation
         public static void LogViewportAdapterNotFoundMessage(RouterService service, FrameworkElement control)
         {
             service._logger
-                .ForContext("Class", "RoutingComponentsHelper")
+                .ForContext(SerilogConstants.Serilog_SourceContext_Name, "RoutingComponentsHelper")
                 .ForContext("RouterServiceId", service.RouterServiceId)
                 .Warning(
                     "Unable to register viewport with router service. Viewport adapter not found for control of type {ViewportControlType}",
@@ -83,7 +83,7 @@ namespace Rogero.WpfNavigation
         public static void LogViewportRegisteredMessage(RouterService service, FrameworkElement control, string viewportName)
         {
             service._logger
-                .ForContext("Class", "RoutingComponentsHelper")
+                .ForContext(SerilogConstants.Serilog_SourceContext_Name, "RoutingComponentsHelper")
                 .Information(
                     "RouterService found. Registered {ViewportName}, of type {ViewportType}, with router service {RouterServiceId}",
                     viewportName, control.GetType(), service.RouterServiceId);
@@ -92,7 +92,7 @@ namespace Rogero.WpfNavigation
         public static void LogRegisteringViewportMessage(RouterService service, FrameworkElement control, string viewportName)
         {
             service._logger
-                .ForContext("Class", "RoutingComponentsHelper")
+                .ForContext(SerilogConstants.Serilog_SourceContext_Name, "RoutingComponentsHelper")
                 .Information(
                     "RouterService found. Registering {ViewportName}, of type {ViewportType}, with router service {RouterServiceId}",
                     viewportName, control.GetType(), service.RouterServiceId);
@@ -101,7 +101,7 @@ namespace Rogero.WpfNavigation
         public static void LogRouterServiceFoundMessage(RouterService service)
         {
             service._logger
-                .ForContext("Class", "RoutingComponentsHelper")
+                .ForContext(SerilogConstants.Serilog_SourceContext_Name, "RoutingComponentsHelper")
                 .Debug(
                     "WalkAncestorsForRouterService.WalkAncestorsForRouterService found RouterService with router service id: {RouterServiceId}",
                     service.RouterServiceId);
@@ -110,7 +110,7 @@ namespace Rogero.WpfNavigation
         public static void LogRouterServiceNotFoundMessage()
         {
             InternalLogger.LoggerInstance
-                .ForContext("Class", "RoutingComponentsHelper")
+                .ForContext(SerilogConstants.Serilog_SourceContext_Name, "RoutingComponentsHelper")
                 .Debug(
                     "WalkAncestorsForRouterService.WalkAncestorsForRouterService did not find the router service. Going to attempt again.");
         }
