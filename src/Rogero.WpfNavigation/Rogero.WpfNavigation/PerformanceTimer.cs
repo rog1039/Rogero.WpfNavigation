@@ -84,11 +84,12 @@ namespace Rogero.WpfNavigation
             {
                 var table = StopwatchTimestampCheckpoint.CheckpointsToString(_checkpoints);
                 _logger
-                    .ForContext("StopwatchTable", table)
                     .Information(
-                        $"Total Time: {{Elapsed}}  stopwatch table for operation, {{OperationName}}:\r\n{table}",
+                        "Total Time: {Elapsed}  stopwatch table for operation, {OperationName}:\r\n{TimingsTable}",
                                  _lastCheckpoint.ElapsedSinceRootTimeSpan,
-                                 _operationName);
+                                 _operationName,
+                        table
+                        );
             }
 
             public void Dispose()
