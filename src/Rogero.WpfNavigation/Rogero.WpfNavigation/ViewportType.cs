@@ -1,10 +1,9 @@
-namespace Rogero.WpfNavigation
+namespace Rogero.WpfNavigation;
+
+public enum ViewportType
 {
-    public enum ViewportType
-    {
-        NormalViewport,
-        NewWindow,
-        Dialog,
-        ModalDialog
-    }
+    NormalViewport,
+    NewWindow,
+    Dialog,
+    ModalDialog
 }

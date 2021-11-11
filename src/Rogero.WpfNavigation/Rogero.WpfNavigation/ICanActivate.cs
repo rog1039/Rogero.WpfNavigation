@@ -1,9 +1,6 @@
-﻿using System.Threading.Tasks;
+﻿namespace Rogero.WpfNavigation;
 
-namespace Rogero.WpfNavigation
+public interface ICanActivate
 {
-    public interface ICanActivate
-    {
-        Task<bool> CanActivate(string uri, object initData);
-    }
+    Task<bool> CanActivate(string uri, object initData);
 }

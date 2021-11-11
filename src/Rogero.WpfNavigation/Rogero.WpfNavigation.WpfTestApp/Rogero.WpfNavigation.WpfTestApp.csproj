@@ -6,21 +6,27 @@
     <UseWPF>true</UseWPF>
     <RootNamespace>Rogero.WpfNavigation.WpfTestApp</RootNamespace>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
-
   <ItemGroup>
-    <PackageReference Include="DevExpress.Mvvm" Version="21.2.3" />
-    <PackageReference Include="DevExpress.Wpf.Grid" Version="21.2.3" />
-    <PackageReference Include="DevExpress.Wpf.LayoutControl" Version="21.2.3" />
-    <PackageReference Include="ReactiveProperty" Version="8.0.0" />
-    <PackageReference Include="Serilog.Sinks.Console" Version="4.0.0" />
-    <PackageReference Include="Serilog.Sinks.Seq" Version="5.0.1" />
+    <!--    Remove conflicting WinForms usings-->
+    <Using Remove="System.Windows.Forms"/>
   </ItemGroup>
 
 
   <ItemGroup>
-    <ProjectReference Include="..\Rogero.WpfNavigation\Rogero.WpfNavigation.csproj" />
+    <PackageReference Include="DevExpress.Mvvm" Version="21.2.3"/>
+    <PackageReference Include="DevExpress.Wpf.Grid" Version="21.2.3"/>
+    <PackageReference Include="DevExpress.Wpf.LayoutControl" Version="21.2.3"/>
+    <PackageReference Include="ReactiveProperty" Version="8.0.0"/>
+    <PackageReference Include="Serilog.Sinks.Console" Version="4.0.0"/>
+    <PackageReference Include="Serilog.Sinks.Seq" Version="5.0.1"/>
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <ProjectReference Include="..\Rogero.WpfNavigation\Rogero.WpfNavigation.csproj"/>
   </ItemGroup>
 
 </Project>

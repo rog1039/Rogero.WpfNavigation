@@ -1,107 +1,105 @@
-﻿using System;
-using System.Windows;
+﻿using System.Windows;
 using Reactive.Bindings;
 using Serilog;
 using Serilog.Core.Enrichers;
 
-namespace Rogero.WpfNavigation.WpfTestApp
+namespace Rogero.WpfNavigation.WpfTestApp;
+
+public class RoutingTestWindowViewModel
 {
-    public class RoutingTestWindowViewModel
+    public ReactiveProperty<RouterService> RouterService { get; } = new ReactiveProperty<RouterService>();
+    public ReactiveProperty<string>        SomeText      { get; } = new ReactiveProperty<string>("blah blah face");
+
+    public DelegateCommand OpenControl1CommandMain   { get; set; }
+    public DelegateCommand OpenControl2CommandMain   { get; set; }
+    public DelegateCommand OpenControl1CommandSecond { get; set; }
+    public DelegateCommand OpenControl2CommandSecond { get; set; }
+
+    private readonly RouteEntryRegistry _registry;
+    private          RouterService      _routerService => RouterService.Value;
+
+    public RoutingTestWindowViewModel()
     {
-        public ReactiveProperty<RouterService> RouterService { get; } = new ReactiveProperty<RouterService>();
-        public ReactiveProperty<string>        SomeText      { get; } = new ReactiveProperty<string>("blah blah face");
+        _registry = new RouteEntryRegistry();
+        var logger = new LoggerConfiguration()
+            .Enrich.With(new PropertyEnricher("AppType", "UnitTest"))
+            .WriteTo.Console().MinimumLevel.Verbose()
+            .WriteTo.Seq("http://ws2012r2seq:5341", apiKey: "RrIxpZQpfUjcqk3NzTBY")
+            .CreateLogger();
+        InternalLogger.LoggerInstance = logger;
 
-        public DelegateCommand OpenControl1CommandMain { get; set; }
-        public DelegateCommand OpenControl2CommandMain { get; set; }
-        public DelegateCommand OpenControl1CommandSecond { get; set; }
-        public DelegateCommand OpenControl2CommandSecond { get; set; }
+        RouterService.Value = new RouterService(_registry, new AlwaysGrantAccessRouteAuthorizationManager(), logger);
 
-        private readonly RouteEntryRegistry _registry;
-        private RouterService _routerService => RouterService.Value;
-
-        public RoutingTestWindowViewModel()
-        {
-            _registry = new RouteEntryRegistry();
-            var logger = new LoggerConfiguration()
-                .Enrich.With(new PropertyEnricher("AppType", "UnitTest"))
-                .WriteTo.Console().MinimumLevel.Verbose()
-                .WriteTo.Seq("http://ws2012r2seq:5341", apiKey: "RrIxpZQpfUjcqk3NzTBY")
-                .CreateLogger();
-            InternalLogger.LoggerInstance = logger;
-
-            RouterService.Value = new RouterService(_registry, new AlwaysGrantAccessRouteAuthorizationManager(), logger);
-
-            OpenControl1CommandMain = new DelegateCommand(NavigateToOneMain);
-            OpenControl2CommandMain = new DelegateCommand(NavigateToTwoMain);
-            OpenControl1CommandSecond = new DelegateCommand(NavigateToOneSecond);
-            OpenControl2CommandSecond = new DelegateCommand(NavigateToTwoSecond);
-            Initialize();
-        }
-
-        private void NavigateToTwoMain()
-        {
-            var result = _routerService.RouteAsync("/control2", null, ViewportOptions.MainViewport(), null);
-        }
-
-        private void NavigateToOneMain()
-        {
-            var result = _routerService.RouteAsync("/control1", null, ViewportOptions.MainViewport(), null);
-        }
-
-        private void NavigateToTwoSecond()
-        {
-            var result = _routerService.RouteAsync("/control2", null, new StandardViewportOptions("SecondViewport"), null);
-        }
-
-        private void NavigateToOneSecond()
-        {
-            var result = _routerService.RouteAsync("/control1", null, new StandardViewportOptions("SecondViewport"), null);
-        }
-
-        private void Initialize()
-        {
-            var route1 = new RouteEntry("Route to Control1",
-                                        "/control1",
-                                        typeof(Control1),
-                                        typeof(object),
-                                        () => new Object());
-            var route2 = new RouteEntry("Route to Control1",
-                                        "/control2",
-                                        typeof(Control2),
-                                        typeof(object),
-                                        () => new Object());
-
-            _registry.RegisterRouteEntry(route1);
-            _registry.RegisterRouteEntry(route2);
-        }
+        OpenControl1CommandMain   = new DelegateCommand(NavigateToOneMain);
+        OpenControl2CommandMain   = new DelegateCommand(NavigateToTwoMain);
+        OpenControl1CommandSecond = new DelegateCommand(NavigateToOneSecond);
+        OpenControl2CommandSecond = new DelegateCommand(NavigateToTwoSecond);
+        Initialize();
     }
 
-    internal class RouteEntry : IRouteEntry
+    private void NavigateToTwoMain()
     {
-        public string Name { get; }
-        public string Uri { get; }
-        public Type ViewModelType { get; }
-        public Type ViewType { get; }
+        var result = _routerService.RouteAsync("/control2", null, ViewportOptions.MainViewport(), null);
+    }
 
-        private readonly Func<object> _viewModelFunc;
+    private void NavigateToOneMain()
+    {
+        var result = _routerService.RouteAsync("/control1", null, ViewportOptions.MainViewport(), null);
+    }
 
-        public RouteEntry(string name, string uri, Type viewType, Type viewModelType, Func<object> viewModelFunc)
-        {
-            _viewModelFunc = viewModelFunc;
-            Name = name;
-            Uri = uri;
-            ViewType = viewType;
-            ViewModelType = viewModelType;
-        }
+    private void NavigateToTwoSecond()
+    {
+        var result = _routerService.RouteAsync("/control2", null, new StandardViewportOptions("SecondViewport"), null);
+    }
 
-        public UIElement CreateView()
-        {
-            return (UIElement) Activator.CreateInstance(ViewType);
-        }
+    private void NavigateToOneSecond()
+    {
+        var result = _routerService.RouteAsync("/control1", null, new StandardViewportOptions("SecondViewport"), null);
+    }
 
-        public object CreateViewModel()
-        {
-            return _viewModelFunc();
-        }
+    private void Initialize()
+    {
+        var route1 = new RouteEntry("Route to Control1",
+                                    "/control1",
+                                    typeof(Control1),
+                                    typeof(object),
+                                    () => new Object());
+        var route2 = new RouteEntry("Route to Control1",
+                                    "/control2",
+                                    typeof(Control2),
+                                    typeof(object),
+                                    () => new Object());
+
+        _registry.RegisterRouteEntry(route1);
+        _registry.RegisterRouteEntry(route2);
+    }
+}
+
+internal class RouteEntry : IRouteEntry
+{
+    public string Name          { get; }
+    public string Uri           { get; }
+    public Type   ViewModelType { get; }
+    public Type   ViewType      { get; }
+
+    private readonly Func<object> _viewModelFunc;
+
+    public RouteEntry(string name, string uri, Type viewType, Type viewModelType, Func<object> viewModelFunc)
+    {
+        _viewModelFunc = viewModelFunc;
+        Name           = name;
+        Uri            = uri;
+        ViewType       = viewType;
+        ViewModelType  = viewModelType;
+    }
+
+    public UIElement CreateView()
+    {
+        return (UIElement) Activator.CreateInstance(ViewType);
+    }
+
+    public object CreateViewModel()
+    {
+        return _viewModelFunc();
     }
 }

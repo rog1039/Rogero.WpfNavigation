@@ -1,9 +1,6 @@
-﻿using System.Threading.Tasks;
+﻿namespace Rogero.WpfNavigation;
 
-namespace Rogero.WpfNavigation
+public interface ICanDeactivate
 {
-    public interface ICanDeactivate
-    {
-        Task<bool> CanDeactivate(string uri, object initData);
-    }
+    Task<bool> CanDeactivate(string uri, object initData);
 }

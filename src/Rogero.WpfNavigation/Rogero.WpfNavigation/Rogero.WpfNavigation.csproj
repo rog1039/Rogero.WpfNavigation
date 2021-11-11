@@ -1,16 +1,17 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-    <PropertyGroup>
-        <TargetFramework>net6.0-windows</TargetFramework>
-        <LangVersion>10</LangVersion>
-        <UseWPF>true</UseWPF>
-        <Nulklable>enable</Nulklable>
-        <RootNamespace>Rogero.WpfNavigation</RootNamespace>
-    </PropertyGroup>
+  <PropertyGroup>
+    <TargetFramework>net6.0-windows</TargetFramework>
+    <LangVersion>10</LangVersion>
+    <UseWPF>true</UseWPF>
+    <Nulklable>enable</Nulklable>
+    <RootNamespace>Rogero.WpfNavigation</RootNamespace>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
 
-    <ItemGroup>
-      <PackageReference Include="Optional" Version="4.0.0" />
-      <PackageReference Include="Serilog" Version="2.10.0" />
-    </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Optional" Version="4.0.0"/>
+    <PackageReference Include="Serilog" Version="2.10.0"/>
+  </ItemGroup>
 
 </Project>

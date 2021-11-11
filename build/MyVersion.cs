@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Text;
-using JetBrains.Annotations;
-using Nuke.Common.Tools.GitVersion;
 
 namespace _Build
 {

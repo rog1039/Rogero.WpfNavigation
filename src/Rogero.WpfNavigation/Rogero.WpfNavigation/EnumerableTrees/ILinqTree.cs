@@ -1,15 +1,12 @@
-﻿using System.Collections.Generic;
+﻿namespace Rogero.WpfNavigation.EnumerableTrees;
 
-namespace Rogero.WpfNavigation.EnumerableTrees
+/// <summary>
+/// Defines an interface that must be implemented to generate the LinqToTree methods
+/// </summary>
+/// <typeparam name="T"></typeparam>
+public interface ILinqTree<T>
 {
-    /// <summary>
-    /// Defines an interface that must be implemented to generate the LinqToTree methods
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    public interface ILinqTree<T>
-    {
-        IEnumerable<T> Children();
+    IEnumerable<T> Children();
 
-        T Parent { get; }
-    }
+    T Parent { get; }
 }

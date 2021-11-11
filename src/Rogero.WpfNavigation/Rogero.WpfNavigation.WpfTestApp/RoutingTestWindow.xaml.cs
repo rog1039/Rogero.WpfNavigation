@@ -1,15 +1,14 @@
 ﻿using System.Windows;
 
-namespace Rogero.WpfNavigation.WpfTestApp
+namespace Rogero.WpfNavigation.WpfTestApp;
+
+/// <summary>
+/// Interaction logic for RoutingTestWindow.xaml
+/// </summary>
+public partial class RoutingTestWindow : Window
 {
-    /// <summary>
-    /// Interaction logic for RoutingTestWindow.xaml
-    /// </summary>
-    public partial class RoutingTestWindow : Window
+    public RoutingTestWindow()
     {
-        public RoutingTestWindow()
-        {
-            InitializeComponent();
-        }
+        InitializeComponent();
     }
 }
