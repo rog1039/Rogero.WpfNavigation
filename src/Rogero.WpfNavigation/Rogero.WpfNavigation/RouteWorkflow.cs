@@ -21,6 +21,14 @@ public static class RouteWorkflow
         return routeEntryMaybe;
     }
 
+    public static void AssignViewToViewModel(ILogger logger, UIElement view, object controller)
+    {
+       if (controller is IViewAware viewAware)
+       {
+          AssignViewToViewModel(logger, view, viewAware);
+       }
+    }
+
     public static void AssignViewToViewModel(ILogger logger, UIElement view, IViewAware viewAware)
     {
         logger.Information("ViewModel {ViewModelType} is IViewAware so calling LoadView() with the View {ViewType}",

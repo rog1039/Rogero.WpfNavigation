@@ -110,13 +110,10 @@ public class RouteWorkflowTask
                     timer.Checkpoint("View created.");
                     RouteWorkflow.AssignDataContext(_logger, View, Controller);
 
-                    //IViewAware context
-                    if (Controller is IViewAware viewAware)
-                    {
-                        RouteWorkflow.AssignViewToViewModel(_logger, View, viewAware);
-                        timer.Checkpoint("ViewModel is view aware, so view assigned to view model");
-                    }
-
+                    //IViewAware
+                    RouteWorkflow.AssignViewToViewModel(_logger, View, Controller);
+                    timer.Checkpoint("Handling possibly ViewAware controller");
+                    
                     //Add View to UI
                     var routeResult = RouteWorkflow.AddViewToUi(_logger, _routerService, this, View);
                     timer.Checkpoint("View added to UI.K");
