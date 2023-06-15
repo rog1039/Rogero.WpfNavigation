@@ -116,7 +116,7 @@ public class RouteWorkflowTask
                     
                     //Add View to UI
                     var routeResult = RouteWorkflow.AddViewToUi(_logger, _routerService, this, View);
-                    timer.Checkpoint("View added to UI.K");
+                    timer.Checkpoint("View added to UI.");
                     return routeResult;
                 },
                 none: async () => new RouteResult(RouteResultStatusCode.RouteNotFound));
