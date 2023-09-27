@@ -193,9 +193,9 @@ public static class DependencyObjectTreeExtensions
     /// Returns a collection containing this element and all ancestor elements
     /// which match the given type.
     /// </summary>
-    public static IEnumerable<DependencyObject> AncestorsAndSelf<T>(this DependencyObject item)
+    public static IEnumerable<T> AncestorsAndSelf<T>(this DependencyObject item)
     {
-        return item.AncestorsAndSelf().Where(i => i is T).Cast<DependencyObject>();
+        return item.AncestorsAndSelf().Where(i => i is T).Cast<T>();
     }
 
     /// <summary>
