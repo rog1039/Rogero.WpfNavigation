@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net7.0-windows</TargetFramework>
+    <TargetFramework>net8.0-windows</TargetFramework>
     <UseWPF>true</UseWPF>
     <RootNamespace>Rogero.WpfNavigation.WpfTestApp</RootNamespace>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
@@ -16,9 +16,9 @@
 
 
   <ItemGroup>
-    <PackageReference Include="DevExpress.Mvvm" Version="23.2.3" />
-    <PackageReference Include="DevExpress.Wpf.Grid" Version="23.2.3" />
-    <PackageReference Include="DevExpress.Wpf.LayoutControl" Version="23.2.3" />
+    <PackageReference Include="DevExpress.Mvvm" Version="24.2.3" />
+    <PackageReference Include="DevExpress.Wpf.Grid" Version="24.2.3" />
+    <PackageReference Include="DevExpress.Wpf.LayoutControl" Version="24.2.3" />
     <PackageReference Include="ReactiveProperty" Version="9.6.0" />
     <PackageReference Include="Serilog.Sinks.Console" Version="6.0.0" />
     <PackageReference Include="Serilog.Sinks.Seq" Version="8.0.0" />

@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net6.0-windows</TargetFramework>
+    <TargetFramework>net8.0-windows</TargetFramework>
     <UseWPF>true</UseWPF>
     <RootNamespace>Rogero.WpfNavigation.WpfTestApp</RootNamespace>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
@@ -11,22 +11,22 @@
 
   <ItemGroup>
     <!--    Remove conflicting WinForms usings-->
-    <Using Remove="System.Windows.Forms"/>
+    <Using Remove="System.Windows.Forms" />
   </ItemGroup>
 
 
   <ItemGroup>
-    <PackageReference Include="DevExpress.Mvvm" Version="21.2.3"/>
-    <PackageReference Include="DevExpress.Wpf.Grid" Version="21.2.3"/>
-    <PackageReference Include="DevExpress.Wpf.LayoutControl" Version="21.2.3"/>
-    <PackageReference Include="ReactiveProperty" Version="8.0.0"/>
-    <PackageReference Include="Serilog.Sinks.Console" Version="4.0.0"/>
-    <PackageReference Include="Serilog.Sinks.Seq" Version="5.0.1"/>
+    <PackageReference Include="DevExpress.Mvvm" Version="23.2.3" />
+    <PackageReference Include="DevExpress.Wpf.Grid" Version="23.2.3" />
+    <PackageReference Include="DevExpress.Wpf.LayoutControl" Version="23.2.3" />
+    <PackageReference Include="ReactiveProperty" Version="9.6.0" />
+    <PackageReference Include="Serilog.Sinks.Console" Version="6.0.0" />
+    <PackageReference Include="Serilog.Sinks.Seq" Version="8.0.0" />
   </ItemGroup>
 
 
   <ItemGroup>
-    <ProjectReference Include="..\Rogero.WpfNavigation\Rogero.WpfNavigation.csproj"/>
+    <ProjectReference Include="..\Rogero.WpfNavigation\Rogero.WpfNavigation.csproj" />
   </ItemGroup>
 
 </Project>
